@@ -56,7 +56,7 @@ export class Alumno {
   grado: Grado;
 
   @ManyToOne(type => Calificacion, calificacion => calificacion.alumnos)
-  calificacion: Calificacion[];
+  calificaciones: Calificacion[];
 
   @OneToOne(type => Persona)
   @JoinColumn()
