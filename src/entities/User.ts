@@ -21,20 +21,22 @@ export class User {
   @Length(4, 30)
   password: string;
 
-  @OneToOne((type) => Person)
-  @JoinColumn()
+  @OneToOne((type) => Person, { cascade: ['insert'] })
+  @JoinColumn({ name: 'person_id' })
   person: Person;
 
   @ManyToOne(
     (type) => Role,
     (role) => role.users
   )
+  @JoinColumn({ name: 'role_id' })
   role: Role;
 
   @ManyToOne(
     (type) => Subject,
     (subject) => subject.users
   )
+  @JoinColumn({ name: 'subject_id'} )
   subject: Subject;
 
   async hashPassword() {

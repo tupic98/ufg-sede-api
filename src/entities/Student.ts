@@ -49,26 +49,29 @@ export class Student {
   @Column({ name: 'student_firstTiem', type: 'boolean', default: 'true' })
   firstTime: boolean;
 
-  @OneToOne((type) => Person)
-  @JoinColumn()
+  @OneToOne((type) => Person, { cascade: ['insert'] })
+  @JoinColumn({ name: 'person_id' })
   person: Person;
 
   @ManyToOne(
     (type) => Modality,
-    (modality) => modality.students
+    (modality) => modality.students,
   )
+  @JoinColumn({ name: 'modality_id' })
   modality: Modality;
 
   @ManyToOne(
     (type) => Section,
     (section) => section.students
   )
+  @JoinColumn({ name: 'section_id' })
   section: Section;
 
   @ManyToOne(
     (type) => Grade,
     (grade) => grade.students
   )
+  @JoinColumn({ name: 'grade_id' })
   grade: Grade;
 
   @OneToMany(
