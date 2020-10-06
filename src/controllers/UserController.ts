@@ -4,17 +4,20 @@ import { validate } from 'class-validator';
 
 import { User } from './../entities/User';
 import { Person } from './../entities/Person';
+import { RoleService } from '../services/RoleService';
+import { SedeService } from '../services/SedeService';
+import { SubjectService } from '../services/SubjectService';
+import { UserService } from '../services/UserService';
 import { Role } from '../entities/Role';
 import { Sede } from '../entities/Sede';
 import { Subject } from '../entities/Subject';
-import { RoleService } from '../services/RoleService';
-import { SedeService } from '../services/SedeService';
+
+const roleService = new RoleService(getRepository(Role));
+const sedeService = new SedeService(getRepository(Sede));
+const subjectService = new SubjectService(getRepository(Subject));
+const userService = new UserService(getRepository(User));
 
 class UserController {
-  constructor(
-    private readonly roleService: RoleService,
-    private readonly sedeService: SedeService,
-  ) { }
   // static listAll = async (req: Request, res: Response) => {
   //   //Get users from database
   //   const userRepository = getRepository(User);
@@ -44,7 +47,7 @@ class UserController {
   //   }
   // };
 
-  public newUser = async (req: Request, res: Response) => {
+  static newUser = async (req: Request, res: Response) => {
     //Get parameters from the body
     const {
       username,
@@ -73,31 +76,25 @@ class UserController {
     } = req.body;
 
     //Getting role information
-    const role = this.roleService.findById(roleId);
+    const role = await roleService.findById(roleId);
     if (!role) {
       res.status(400).json({ message: 'El rol que intenta asignar no existe' });
       return;
     }
 
     //Getting sede information
-    const sede = this.sedeService.findById(sedeId);
+    const sede = await sedeService.findById(sedeId);
     if (!sede) {
       res.status(400).json({ message: 'La sede que intenta asignar no existe' });
       return;
     }
 
     //Getting subject information
-    const subjectRepository = getRepository(Subject);
-    let subject: Subject;
-    try {
-      subject = await subjectRepository.findOneOrFail(subjectId);
-    } catch (e) {
-      res
-        .status(400)
-        .json({ message: 'La materia que intenta asignar no existe' });
+    const subject = await subjectService.findById(subjectId);
+    if (!subject) {
+      res.status(400).json({ message: 'La materia que intenta asignar no existe' });
       return;
     }
-
     //Setting person information
     const person = new Person();
     person.username = username;
@@ -117,14 +114,6 @@ class UserController {
       return;
     }
 
-    //Store person
-    const personRepository = getRepository(Person);
-    try {
-      await personRepository.save(person);
-    } catch (e) {
-      res.status(409).json({ message: 'Username ya existe' });
-    }
-
     const user = new User();
     user.password = password;
     user.subject = subject;
@@ -141,9 +130,8 @@ class UserController {
     await user.hashPassword();
 
     // Try to save.
-    const userRepository = getRepository(User);
     try {
-      await userRepository.save(user);
+      await userService.create(user);
     } catch (error) {
       res.status(400).json({ message: 'No se pudo crear el usuario' });
       return;
