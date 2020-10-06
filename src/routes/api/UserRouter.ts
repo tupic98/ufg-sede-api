@@ -1,10 +1,13 @@
 import { Router } from 'express';
+import { checkJWT } from '../../middlewares/checkJWT';
+import { checkRole } from '../../middlewares/checkRole';
+import UserController from '../../controllers/UserController';
 // import UserController from './../../controllers/UserController';
 // import { checkJWT } from './../../middlewares/checkJWT';
 // import { checkRole } from './../../middlewares/checkRole';
 
 const router: Router = Router();
-
+router.post('/', [checkJWT, checkRole(['admin'])], UserController.newUser)
 // router.get(
 //   '/',
 //   [checkJWT, checkRole(['DIRECTOR', 'ADMIN'])],
@@ -14,11 +17,6 @@ const router: Router = Router();
 //   '/:id',
 //   [checkJWT, checkRole(['DIRECTOR', 'ADMIN'])],
 //   UserController.getOneById
-// );
-// router.post(
-//   '/',
-//   [checkJWT, checkRole(['DIRECTOR', 'ADMIN'])],
-//   UserController.newUser
 // );
 // router.patch(
 //   '/:id',
