@@ -3,6 +3,9 @@ import * as jwt from 'jsonwebtoken';
 import { getRepository } from 'typeorm';
 import { User } from './../entities/User';
 import config from './../../config/config';
+import { UserService } from '../services/UserService';
+
+const userService = new UserService(getRepository(User));
 
 class AuthController {
   static login = async (req: Request, res: Response) => {
@@ -13,25 +16,11 @@ class AuthController {
     }
 
     // Get user form database
-    const userRepository = getRepository(User);
-    let user: User | undefined;
-
-    try {
-      user = await userRepository
-        .createQueryBuilder('user')
-        .innerJoinAndSelect('user.person', 'person')
-        .where('person.username = :username', { username })
-        .getOne();
-    } catch (error) {
-      res.sendStatus(401);
-      return;
-    }
-
+    
+    const user = await userService.findByUsernameWithRole(username);
     if (!user) {
-      res
-        .status(400)
-        .json({ message: 'El usuario que intenta ingresar no existe' });
-      return;
+      res.send(400).json({ message: 'Usuario incorrecto' });
+      return
     }
 
     // Check if encrypted password match
@@ -42,7 +31,7 @@ class AuthController {
 
     //Sign JWT, valid for 1 hour
     const token = jwt.sign(
-      { userId: user.id, username: user.person.username },
+      { userId: user.id, username: user.person.username, role: user.role.name },
       config.jwtSecret,
       { expiresIn: '1h' }
     );
