@@ -1,8 +1,6 @@
 import { Request, Response } from 'express';
 import * as jwt from 'jsonwebtoken';
 import { getRepository } from 'typeorm';
-import { validate } from 'class-validator';
-
 import { User } from './../entities/User';
 import config from './../../config/config';
 
@@ -38,7 +36,7 @@ class AuthController {
 
     // Check if encrypted password match
     if (!user.checkIfUnencryptedPasswordIsValid(password)) {
-      res.status(401).json({ message: 'La contraseña no es valida' }).;
+      res.status(401).json({ message: 'La contraseña no es valida' });
       return;
     }
 

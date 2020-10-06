@@ -16,7 +16,7 @@ export class Subject {
   @PrimaryGeneratedColumn({ name: 'subject_id', type: 'int' })
   id: number;
 
-  @Column({ name: 'subject_id', type: 'varchar', length: '30' })
+  @Column({ name: 'subject_name', type: 'varchar', length: '30' })
   name: string;
 
   @OneToMany(

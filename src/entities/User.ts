@@ -17,7 +17,7 @@ export class User {
   @PrimaryGeneratedColumn({ name: 'user_id', type: 'int' })
   id: number;
 
-  @Column({ name: 'user_password', type: 'string', length: '30' })
+  @Column({ name: 'user_password', type: 'varchar', length: '30' })
   @Length(4, 30)
   password: string;
 
