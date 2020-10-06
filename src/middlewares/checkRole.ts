@@ -11,13 +11,13 @@ export const checkRole = (roles: Array<string>) => {
     let user: User;
 
     try {
-      user = await userRepository.findOneOrFail(id);
+      user = await userRepository.findOneOrFail(id, { relations: ['role'] });
     } catch (error) {
       res.sendStatus(401);
       return;
     }
 
-    if (roles.indexOf(user.role) > -1) next();
+    if (roles.indexOf(user.role.name) > -1) next();
     else res.status(401).send();
   };
 };
