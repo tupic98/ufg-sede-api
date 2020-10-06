@@ -4,6 +4,7 @@ import {
   ManyToOne,
   Unique,
   PrimaryGeneratedColumn,
+  JoinColumn,
 } from 'typeorm';
 import { IsEmail, IsOptional, Length, MaxLength } from 'class-validator';
 import { Sede } from './Sede';
@@ -46,5 +47,6 @@ export class Person {
   status: boolean;
 
   @ManyToOne((type) => Sede, (sede) => sede.persons)
+  @JoinColumn({ name: 'sede_id' })
   sede: Sede;
 }

@@ -5,8 +5,8 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
+  JoinColumn,
 } from 'typeorm';
-import { Student } from './Student';
 import { Subject } from './Subject';
 import { Module } from './Module';
 
@@ -38,21 +38,23 @@ export class Qualification {
   @Column({ name: 'qualification_updatedBy', type: 'text' })
   updatedBy: string;
 
-  @UpdateDateColumn({ name: 'updated_at', type: 'timestamp without time zone' })
+  @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
 
-  @CreateDateColumn({ name: 'created_at', type: 'timestamp without time zone' })
+  @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 
   @ManyToOne(
     (type) => Subject,
     (subject) => subject.qualifications
   )
+  @JoinColumn({ name: 'subject_id' })
   subject: Subject;
 
   @ManyToOne(
     (type) => Module,
     (module) => module.qualifications
   )
+  @JoinColumn({ name: 'module_id' })
   module: Module;
 }

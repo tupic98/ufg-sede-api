@@ -4,6 +4,7 @@ import {
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
+  JoinColumn,
 } from 'typeorm';
 import { Grade } from './Grade';
 import { Qualification } from './Qualification';
@@ -34,11 +35,13 @@ export class Subject {
     (type) => Grade,
     (grade) => grade.subjects
   )
+  @JoinColumn({ name: 'grade_id' })
   grade: Grade;
 
   @ManyToOne(
     (type) => Student,
     (student) => student.subjects
   )
+  @JoinColumn({ name: 'student_id' })
   student: Student;
 }
