@@ -9,31 +9,42 @@ import config from './../../config/config';
 class AuthController {
   static login = async (req: Request, res: Response) => {
     // Check if username and password are set
-    let { email, password } = req.body;
-    if (!(email && password)) {
+    let { username, password } = req.body;
+    if (!(username && password)) {
       res.sendStatus(400);
     }
 
     // Get user form database
     const userRepository = getRepository(User);
-    let user: User;
+    let user: User | undefined;
 
     try {
-      user = await userRepository.findOneOrFail({ where: { email } });
+      user = await userRepository
+        .createQueryBuilder('user')
+        .innerJoinAndSelect('user.person', 'person')
+        .where('person.username = :username', { username })
+        .getOne();
     } catch (error) {
       res.sendStatus(401);
       return;
     }
 
+    if (!user) {
+      res
+        .status(400)
+        .json({ message: 'El usuario que intenta ingresar no existe' });
+      return;
+    }
+
     // Check if encrypted password match
     if (!user.checkIfUnencryptedPasswordIsValid(password)) {
-      res.sendStatus(401);
+      res.status(401).json({ message: 'La contraseña no es valida' }).;
       return;
     }
 
     //Sign JWT, valid for 1 hour
     const token = jwt.sign(
-      { userId: user.id, email: user.email },
+      { userId: user.id, username: user.person.username },
       config.jwtSecret,
       { expiresIn: '1h' }
     );
@@ -42,44 +53,48 @@ class AuthController {
     res.send(token);
   };
 
-  static changePassword = async (req: Request, res: Response) => {
-    //Get ID from JWT
-    const id = res.locals.jwtPayload.userId;
+  static signUp = async (req: Request, res: Response) => {
+    
+  }
 
-    //Get parameters from the body
-    const { oldPassword, newPassword } = req.body;
-    if (!(oldPassword && newPassword)) {
-      res.sendStatus(400);
-      return;
-    }
+  // static changePassword = async (req: Request, res: Response) => {
+  //   //Get ID from JWT
+  //   const id = res.locals.jwtPayload.userId;
 
-    const userRepository = getRepository(User);
-    let user: User;
-    try {
-      user = await userRepository.findOneOrFail(id);
-    } catch (error) {
-      res.sendStatus(401);
-      return;
-    }
+  //   //Get parameters from the body
+  //   const { oldPassword, newPassword } = req.body;
+  //   if (!(oldPassword && newPassword)) {
+  //     res.sendStatus(400);
+  //     return;
+  //   }
 
-    // Check if old password matchs
-    if (!user.checkIfUnencryptedPasswordIsValid(oldPassword)) {
-      res.sendStatus(401);
-      return;
-    }
+  //   const userRepository = getRepository(User);
+  //   let user: User;
+  //   try {
+  //     user = await userRepository.findOneOrFail(id);
+  //   } catch (error) {
+  //     res.sendStatus(401);
+  //     return;
+  //   }
 
-    //Validate model (password length)
-    user.password = newPassword;
-    const errors = await validate(user);
-    if (errors.length > 0) {
-      res.status(400).send(errors);
-    }
+  //   // Check if old password matchs
+  //   if (!user.checkIfUnencryptedPasswordIsValid(oldPassword)) {
+  //     res.sendStatus(401);
+  //     return;
+  //   }
 
-    user.hashPassword();
-    userRepository.save(user);
+  //   //Validate model (password length)
+  //   user.password = newPassword;
+  //   const errors = await validate(user);
+  //   if (errors.length > 0) {
+  //     res.status(400).send(errors);
+  //   }
 
-    res.sendStatus(204);
-  };
+  //   user.hashPassword();
+  //   userRepository.save(user);
+
+  //   res.sendStatus(204);
+  // };
 }
 
 export default AuthController;
