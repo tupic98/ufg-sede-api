@@ -7,11 +7,17 @@ export class RoleService {
   ) { }
 
   public async findById(id: number): Promise<Role | undefined> {
-    return await this.roleRepository.findOneOrFail(id);
+    return await this.roleRepository.findOneOrFail(id, {
+      select: ['id', 'name', 'type', 'permissions', 'users'],
+    });
   }
 
   public async findAll(): Promise<Role[]> {
-    return await this.roleRepository.find();
+    return await this.roleRepository
+      .createQueryBuilder('role')
+      .innerJoinAndSelect('role.permissions', 'permissions')
+      .innerJoinAndSelect('role.users', 'users')
+      .getMany()
   }
 
   public async create(role: Role): Promise<Role> {
