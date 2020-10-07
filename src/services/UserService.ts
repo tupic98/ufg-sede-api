@@ -9,8 +9,8 @@ export class UserService {
   public async findByUsernameWithRole(username: string): Promise<User | undefined> {
     return await this.userRepository
       .createQueryBuilder('user')
-      .leftJoinAndSelect('user.role', 'role')
-      .leftJoinAndSelect('user.person', 'person')
+      .innerJoinAndSelect('user.role', 'role')
+      .innerJoinAndSelect('user.person', 'person')
       .where('person.username = :username', { username })
       .getOne();
   }
