@@ -2,40 +2,45 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
-  Unique,
-  CreateDateColumn,
-  UpdateDateColumn,
+  ManyToOne,
+  OneToOne,
+  JoinColumn,
 } from 'typeorm';
-import { Length, IsNotEmpty } from 'class-validator';
+import { Length } from 'class-validator';
 import * as bcrypt from 'bcryptjs';
+import { Subject } from './Subject';
+import { Role } from './Role';
+import { Person } from './Person';
 
 @Entity()
-@Unique(['email'])
 export class User {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn({ name: 'user_id', type: 'int' })
   id: number;
 
-  @Column()
-  email: string;
-
-  @Column()
-  @Length(4, 100)
+  @Column({ name: 'user_password', type: 'varchar', length: '30' })
+  @Length(4, 30)
   password: string;
 
-  @Column()
-  @IsNotEmpty()
-  role: string;
+  @OneToOne((type) => Person, { cascade: ['insert'] })
+  @JoinColumn({ name: 'person_id' })
+  person: Person;
 
-  @Column()
-  @CreateDateColumn()
-  createdAt: Date;
+  @ManyToOne(
+    (type) => Role,
+    (role) => role.users
+  )
+  @JoinColumn({ name: 'role_id' })
+  role: Role;
 
-  @Column()
-  @UpdateDateColumn()
-  updatedAt: Date;
+  @ManyToOne(
+    (type) => Subject,
+    (subject) => subject.users
+  )
+  @JoinColumn({ name: 'subject_id'} )
+  subject: Subject;
 
-  hashPassword() {
-    this.password = bcrypt.hashSync(this.password, 8);
+  async hashPassword() {
+    this.password = await bcrypt.hash(this.password, 10);
   }
 
   checkIfUnencryptedPasswordIsValid(unencryptedPassword: string) {
