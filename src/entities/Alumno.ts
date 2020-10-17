@@ -5,7 +5,8 @@ import {
   Unique,
   ManyToOne,
   OneToOne,
-  JoinColumn
+  JoinColumn,
+  OneToMany
 
 } from 'typeorm';
 import { Length } from 'class-validator';
@@ -24,20 +25,17 @@ export class Alumno {
   @Column()
   anno: number;
 
-  @Column()
-  nombres: string;
-
-  @Column()
+  @Column({ nullable: true })
   @Length(0, 20)
   boleta: string;
 
-  @Column()
+  @Column({ nullable: true })
   aprovado: boolean;
 
-  @Column({ type: "decimal", precision: 4, scale: 2 })
+  @Column({ type: "decimal", precision: 4, scale: 2, nullable: true })
   promedio_final: number;
 
-  @Column({ type: "decimal", precision: 4, scale: 2 })
+  @Column({ type: "decimal", precision: 4, scale: 2, nullable: true })
   promedio_insti: number;
 
   @Column("text")
@@ -46,19 +44,19 @@ export class Alumno {
   @Column()
   firsttime: boolean;
 
-  @ManyToOne(type => Modalidad, modalidad => modalidad.alumnos)
+  @ManyToOne(type => Modalidad, modalidad => modalidad.alumnos, { nullable: false })
   modalidad: Modalidad;
 
-  @ManyToOne(type => Seccion, seccion => seccion.alumnos)
+  @ManyToOne(type => Seccion, seccion => seccion.alumnos, { nullable: false })
   seccion: Seccion;
 
-  @ManyToOne(type => Grado, grado => grado.alumnos)
+  @ManyToOne(type => Grado, grado => grado.alumnos, { nullable: false })
   grado: Grado;
 
-  @ManyToOne(type => Calificacion, calificacion => calificacion.alumnos)
+  @OneToMany(type => Calificacion, calificacion => calificacion.alumno)
   calificaciones: Calificacion[];
 
-  @OneToOne(type => Persona)
+  @OneToOne(type => Persona, { nullable: false })
   @JoinColumn()
   persona: Persona;
 }

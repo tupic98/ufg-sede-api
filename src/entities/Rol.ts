@@ -6,7 +6,7 @@ import {
     ManyToMany, 
     JoinTable
 } from 'typeorm';
-import { Length } from 'class-validator';
+import { IsNotEmpty, Length } from 'class-validator';
 import { Usuario } from "./Usuario";
 import { Permiso } from './Permiso';
 
@@ -17,6 +17,7 @@ export class Rol {
 
     @Column()
     @Length(0, 20)
+    @IsNotEmpty()
     rol_nombre: string;
 
     @Column({ type: "text" })
@@ -25,7 +26,7 @@ export class Rol {
     @OneToMany(type => Usuario, usuario => usuario.rol)
     usuarios: Usuario[];
 
-    @ManyToMany(type => Permiso, permiso =>permiso.rols)
+    @ManyToMany(type => Permiso)
     @JoinTable()
     permisos: Permiso[];
 }

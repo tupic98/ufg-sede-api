@@ -22,7 +22,7 @@ export class Materia {
     @OneToMany(type => Usuario, usuario => usuario.materia)
     usuarios: Usuario[];
 
-    @ManyToOne(type => Grado, grado => grado.materias)
+    @ManyToOne(type => Grado, grado => grado.materias, { nullable: false })
     grado: Grado;
 
     @OneToMany(type => Calificacion, calificacion => calificacion.materia)

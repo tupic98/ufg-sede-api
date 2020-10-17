@@ -2,8 +2,8 @@ import {
     Entity,
     Column,
     ManyToOne,
-    CreateDateColumn, 
-    UpdateDateColumn
+    CreateDateColumn,
+    UpdateDateColumn, PrimaryGeneratedColumn
 } from "typeorm";
 import { Alumno } from "./Alumno";
 import { Materia } from "./Materia";
@@ -11,16 +11,20 @@ import { Modulo } from "./Modulo";
 
 @Entity()
 export class Calificacion {
+
+    @PrimaryGeneratedColumn()
+    calificacion_id: number;
+
     @Column({ type: "decimal", precision: 4, scale: 2 })
     nota: number;
 
     @Column()
     aprobado: boolean;
 
-    @Column()
+    @Column({ nullable: true })
     link_rec: string;
 
-    @Column()
+    @Column({ nullable: true })
     rec_habilitada: boolean;
 
     @Column()
@@ -34,15 +38,15 @@ export class Calificacion {
     @UpdateDateColumn()
     updatedAt: Date;
 
-    @Column()
+    @Column({ nullable: true })
     updated_by: string;
 
-    @ManyToOne(type => Alumno, alumno => alumno.calificaciones)
-    alumnos: Alumno;
+    @ManyToOne(type => Alumno, alumno => alumno.calificaciones, { nullable: false })
+    alumno: Alumno;
 
-    @ManyToOne(type => Materia, materia => materia.calificaciones)
+    @ManyToOne(type => Materia, materia => materia.calificaciones, { nullable: false })
     materia: Materia;
 
-    @ManyToOne(type => Modulo, modulo => modulo.calificaciones)
+    @ManyToOne(type => Modulo, modulo => modulo.calificaciones, { nullable: false })
     modulo: Modulo;
 }

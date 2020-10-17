@@ -1,8 +1,9 @@
+import { IsNotEmpty } from 'class-validator';
 import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
-  ManyToOne
+  OneToMany
 } from 'typeorm';
 import { Persona } from "./Persona";
 
@@ -12,14 +13,15 @@ export class Sede {
   sede_id: number;
 
   @Column()
+  @IsNotEmpty()
   sede_nombre: string;
 
-  @Column()
+  @Column({ nullable: true })
   logo: string;
 
-  @Column()
+  @Column({ nullable: true })
   dir: string;
 
-  @ManyToOne(type => Persona, persona => persona.sedes)
-  persona: Persona;
+  @OneToMany(type => Persona, persona => persona.sede)
+  personas: Persona[];
 }

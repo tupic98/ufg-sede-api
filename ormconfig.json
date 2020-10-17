@@ -3,7 +3,7 @@
   "host": "localhost",
   "port": 5432,
   "username": "postgres",
-  "password": "root",
+  "password": "admin",
   "database": "appsede",
   "synchronize": false,
   "logging": true,

@@ -2,11 +2,8 @@ import {
     Entity,
     PrimaryGeneratedColumn,
     Column,
-    JoinTable,
-    ManyToMany
 } from 'typeorm';
-import { Length } from 'class-validator';
-import { Rol } from './Rol';
+import { IsNotEmpty, Length } from 'class-validator';
 
 @Entity()
 export class Permiso {
@@ -15,9 +12,7 @@ export class Permiso {
 
     @Column()
     @Length(0, 20)
+    @IsNotEmpty()
     permiso_name: string;
 
-    @ManyToMany(type => Rol, rol =>rol.permisos)
-    @JoinTable()
-    rols: Rol[];
 }

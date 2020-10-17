@@ -2,44 +2,44 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
-  Unique,
-  OneToMany
+  ManyToOne
 } from 'typeorm';
 import { Length, IsNotEmpty } from 'class-validator';
 import { Sede } from "./Sede";
 
 @Entity()
-@Unique(['correo'])
 export class Persona {
   @PrimaryGeneratedColumn()
   persona_id: number;
 
-  @Column()
+  @Column({unique: true})
+  @IsNotEmpty()
   usuario: string;
 
   @Column()
   @Length(0, 20)
+  @IsNotEmpty()
   nombres: string;
 
   @Column()
   @Length(0, 20)
+  @IsNotEmpty()
   apellidos: string;
 
-  @Column()
+  @Column({ nullable: true })
   @Length(0, 8)
   numero: string;
 
-  @Column()
+  @Column({ nullable: true ,unique: true})
   correo: string;
 
-  @Column()
+  @Column({ nullable: true })
   @Length(0, 8)
   numero_alt: string;
 
-  @Column()
-  @IsNotEmpty()
+  @Column({ default: true })
   estado: boolean;
 
-  @OneToMany(type => Sede, sede => sede.persona)
-  sedes: Sede[];
+  @ManyToOne(type => Sede, sede => sede.personas, { nullable: false })
+  sede: Sede;
 }

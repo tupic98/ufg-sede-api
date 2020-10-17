@@ -4,7 +4,7 @@ import config from './../../config/config';
 
 export const checkJWT = (req: Request, res: Response, next: NextFunction) => {
   //Get the jwt token authorization from headers
-  const token = <string>req.headers['Authorization'];
+  const token = <string>req.headers.authorization;
   let jwtPayload;
 
   try {
