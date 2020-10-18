@@ -19,17 +19,17 @@ class UsuarioController {
     }
 
     static getOneById = async (req: Request, res: Response) => {
-        const persona_id: number = Number(req.params.id);
-        const UsuarioRepository = getRepository(Persona);
+        const usuario_id: number = Number(req.params.id);
+        const UsuarioRepository = getRepository(Usuario);
 
         try {
-            const Persona = await UsuarioRepository.findOneOrFail(persona_id, {
+            const usuario = await UsuarioRepository.findOneOrFail(usuario_id, {
                 relations: ["persona", "persona.sede", "materia"]
             });
-            res.status(200).send(Persona);
+            res.status(200).send(usuario);
         } catch (error) {
             res.status(404).json({
-                message: 'Persona not found',
+                message: 'Usuario not found',
             });
             return;
         }
@@ -48,9 +48,10 @@ class UsuarioController {
         persona.correo = correo;
         persona.numero_alt = numero_alt;
         persona.estado = estado;
+
         usuario.password = password;
-        console.log(rol_id);
-        const errors = await validate(Persona);
+        
+        const errors = await validate(persona);
 
         if (errors.length > 0) {
             res.status(400).send(errors);
@@ -82,6 +83,26 @@ class UsuarioController {
         } catch (error) {
             res.status(404).json({
                 message: 'No se pudo ingresar el Usuario',
+            });
+            return;
+        }
+    }
+
+    static deleteById = async (req: Request, res: Response) => {
+        const usuario_id: number = Number(req.params.id);
+        const UsuarioRepository = getRepository(Usuario);
+        const personaRepository = getRepository(Persona);
+        try {
+            const usuario = await UsuarioRepository.findOneOrFail(usuario_id, {
+                relations: ["persona", "persona.sede", "materia"]
+            });
+            const persona=usuario.persona;
+            UsuarioRepository.delete(usuario);
+            personaRepository.delete(persona);
+            res.status(200).send('Se ha borrado con exito');
+        } catch (error) {
+            res.status(404).json({
+                message: 'Usuario not found',
             });
             return;
         }

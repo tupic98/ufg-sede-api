@@ -9,6 +9,6 @@ const router: Router = Router();
 router.get('/', RolController.listAll);
 router.post('/',RolController.newRol);
 router.get('/:id',RolController.getOneById);
-router.patch('/',RolController.editRol);
+router.patch('/:id',RolController.editRol);
 
 export default router;

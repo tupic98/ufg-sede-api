@@ -9,5 +9,6 @@ const router: Router = Router();
 router.get('/', UsuarioController.listAll);
 router.post('/',UsuarioController.newUsuario);
 router.get('/:id',UsuarioController.getOneById);
+router.delete('/:id',UsuarioController.deleteById);
 
 export default router;

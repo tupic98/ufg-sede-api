@@ -9,6 +9,6 @@ const router: Router = Router();
 router.get('/', MateriaController.listAll);
 router.post('/',MateriaController.newMateria);
 router.get('/:id',MateriaController.getOneById);
-router.patch('/',MateriaController.editMateria);
+router.patch('/:id',MateriaController.editMateria);
 
 export default router;

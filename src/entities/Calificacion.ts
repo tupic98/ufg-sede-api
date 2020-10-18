@@ -18,7 +18,7 @@ export class Calificacion {
     @Column({ type: "decimal", precision: 4, scale: 2 })
     nota: number;
 
-    @Column()
+    @Column({ nullable: true })
     aprobado: boolean;
 
     @Column({ nullable: true })

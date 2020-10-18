@@ -9,6 +9,6 @@ const router: Router = Router();
 router.get('/', GradoController.listAll);
 router.post('/',GradoController.newGrado);
 router.get('/:id',GradoController.getOneById);
-router.patch('/',GradoController.editGrado);
+router.patch('/:id',GradoController.editGrado);
 
 export default router;
