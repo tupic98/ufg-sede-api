@@ -8,7 +8,6 @@ import {
 } from 'typeorm';
 import { Grade } from './Grade';
 import { Qualification } from './Qualification';
-import { Student } from './Student';
 import { User } from './User';
 
 @Entity()
@@ -37,11 +36,4 @@ export class Subject {
   )
   @JoinColumn({ name: 'grade_id' })
   grade: Grade;
-
-  @ManyToOne(
-    (type) => Student,
-    (student) => student.subjects
-  )
-  @JoinColumn({ name: 'student_id' })
-  student: Student;
 }
