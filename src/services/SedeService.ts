@@ -1,15 +1,26 @@
 import { DeleteResult, Repository } from 'typeorm';
 import { Sede } from '../entities/Sede';
+import { Service } from "typedi";
+import { InjectRepository } from "typeorm-typedi-extensions";
+import { PaginationAwareObject } from "typeorm-pagination/dist/helpers/pagination";
 
+@Service()
 export class SedeService {
-  constructor(private readonly sedeRepository: Repository<Sede>) {}
+  constructor(
+    @InjectRepository(Sede)
+    protected sedeRepository: Repository<Sede>
+  ) { }
 
   public async findById(id: number): Promise<Sede | undefined> {
-    return await this.sedeRepository.findOneOrFail(id);
+    return await this.sedeRepository.findOneOrFail(id, {
+      select: ['id', 'logo', 'name', 'address', 'code'],
+    });
   }
 
-  public async findAll(): Promise<Sede[]> {
-    return await this.sedeRepository.find();
+  public async findAll(): Promise<PaginationAwareObject> {
+    return await this.sedeRepository
+      .createQueryBuilder('sede')
+      .paginate(10);
   }
 
   public async create(sede: Sede): Promise<Sede> {
