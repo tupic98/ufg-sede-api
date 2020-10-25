@@ -1,14 +1,12 @@
 import { Request, Response } from 'express';
 import * as jwt from 'jsonwebtoken';
-import { getRepository } from 'typeorm';
-import { User } from './../entities/User';
 import config from './../../config/config';
 import { UserService } from '../services/UserService';
-
-const userService = new UserService(getRepository(User));
+import { Container } from "typedi";
 
 class AuthController {
   static login = async (req: Request, res: Response) => {
+    const userService = Container.get(UserService);
     // Check if username and password are set
     let { username, password } = req.body;
     if (!(username && password)) {
@@ -16,7 +14,7 @@ class AuthController {
     }
 
     // Get user form database
-    
+
     const user = await userService.findByUsernameWithRole(username);
     if (!user) {
       res.send(400).json({ message: 'Usuario incorrecto' });
@@ -41,7 +39,7 @@ class AuthController {
   };
 
   static signUp = async (req: Request, res: Response) => {
-    
+
   }
 
   // static changePassword = async (req: Request, res: Response) => {
