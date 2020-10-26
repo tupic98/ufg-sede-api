@@ -4,7 +4,6 @@ import { Subject } from "../entities/Subject";
 import { GradeService } from "../services/GradeService";
 import { validate } from "class-validator";
 import { Container } from "typedi";
-import { Grade } from "../entities/Grade";
 
 class SubjectController {
   static fetch = async (req: Request, res: Response) => {
@@ -19,10 +18,8 @@ class SubjectController {
     const { name, gradeId }: { name: string; gradeId: number } = req.body;
 
     //Getting grade information
-    let grade: Grade;
-    try {
-      grade = await gradeService.findById(gradeId);
-    } catch (e) {
+    const grade = await gradeService.findById(gradeId);
+    if (!grade) {
       res.status(400).json({ message: 'El grado que intenta asignar no existe' })
       return;
     }
