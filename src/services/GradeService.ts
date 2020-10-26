@@ -11,8 +11,8 @@ export class GradeService {
     protected gradeRepository: Repository<Grade>
   ) { }
 
-  public async findById(id: number): Promise<Grade> {
-    return await this.gradeRepository.findOneOrFail();
+  public async findById(id: number): Promise<Grade | undefined> {
+    return await this.gradeRepository.findOne();
   }
 
   public async findAll(): Promise<PaginationAwareObject> {

@@ -12,7 +12,7 @@ export class SubjectService {
   ) { }
 
   public async findById(id: number): Promise<Subject | undefined> {
-    return await this.subjectRepository.findOneOrFail(id, {
+    return await this.subjectRepository.findOne(id, {
       select: ['id', 'name', 'grade', 'users'],
     });
   }

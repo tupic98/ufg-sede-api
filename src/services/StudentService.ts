@@ -11,8 +11,15 @@ export class StudentService {
     private readonly studentRepository: Repository<Student>,
   ) { }
 
+  public async findByCode(code: string): Promise<Student | undefined> {
+    return await this.studentRepository
+      .createQueryBuilder('student')
+      .where('student.code = :code', { code })
+      .getOne();
+  }
+
   public async findById(id: number): Promise<Student | undefined> {
-    return await this.studentRepository.findOneOrFail(id, {
+    return await this.studentRepository.findOne(id, {
       select: [
         'id',
         'year',
