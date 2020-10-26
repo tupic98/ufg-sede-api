@@ -3,6 +3,7 @@ import * as jwt from 'jsonwebtoken';
 import config from './../../config/config';
 import { UserService } from '../services/UserService';
 import { Container } from "typedi";
+import { StudentService } from '../services/StudentService';
 
 class AuthController {
   static login = async (req: Request, res: Response) => {
@@ -40,6 +41,28 @@ class AuthController {
 
   static signUp = async (req: Request, res: Response) => {
 
+  }
+
+  static loginStudent = async (req: Request, res: Response) => {
+    const studentService = Container.get(StudentService);
+    const { code }: { code: string } = req.body;
+    if (!code) {
+      res.status(400).json({ message: 'El código del estudiante es requerido' });
+    }
+
+    const student = await studentService.findByCode(code);
+    if (!student) {
+      res.send(400).json({ message: 'El código del estudiante es incorrecto' });
+      return;
+    }
+
+    const token = jwt.sign(
+      { studentId: student.id, code: student.code },
+      config.jwtSecret,
+      { expiresIn: '1h' }
+    );
+
+    res.send(token);
   }
 
   // static changePassword = async (req: Request, res: Response) => {
