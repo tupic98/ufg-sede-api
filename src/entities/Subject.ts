@@ -4,11 +4,12 @@ import {
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
-  JoinColumn,
+  JoinColumn, ManyToMany,
 } from 'typeorm';
 import { Grade } from './Grade';
 import { Qualification } from './Qualification';
 import { User } from './User';
+import { Student } from "./Student";
 
 @Entity()
 export class Subject {
@@ -36,4 +37,7 @@ export class Subject {
   )
   @JoinColumn({ name: 'grade_id' })
   grade: Grade;
+
+  @ManyToMany(() => Student, student => student.subjects)
+  students: Student[];
 }
