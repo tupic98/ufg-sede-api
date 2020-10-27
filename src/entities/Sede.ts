@@ -12,6 +12,9 @@ export class Sede {
   @Column({ name: 'sede_logo', type: 'text' })
   logo: string;
 
+  @Column({ name: 'sede_code', type: 'text' })
+  code: string;
+
   @Column({ name: 'sede_address', type: 'text' })
   address: string;
 

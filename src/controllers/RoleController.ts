@@ -1,21 +1,20 @@
 import { Request, Response } from 'express';
 import { PermissionService } from "../services/PermissionService";
-import { getRepository } from "typeorm";
-import { Permission } from "../entities/Permission";
 import { Role } from '../entities/Role';
 import { validate } from 'class-validator';
 import { RoleService } from '../services/RoleService';
-
-const permissionService = new PermissionService(getRepository(Permission));
-const roleService = new RoleService(getRepository(Role));
+import { Container } from "typedi";
 
 class RoleController {
   static fetch = async (req: Request, res: Response) => {
+    const roleService = Container.get(RoleService);
     const roles = await roleService.findAll();
     res.status(200).send(roles);
   }
 
   static store = async (req: Request, res: Response) => {
+    const permissionService = Container.get(PermissionService);
+    const roleService = Container.get(RoleService);
     const {
       name,
       type,
@@ -55,6 +54,8 @@ class RoleController {
   }
 
   static update = async (req: Request, res: Response) => {
+    const permissionService = Container.get(PermissionService);
+    const roleService = Container.get(RoleService);
     const id = Number(req.params.id);
 
     const { name, type, permissionId }: { name: string, type: string, permissionId: Array<number> } = req.body;
@@ -87,9 +88,12 @@ class RoleController {
       res.status(400).json({ message: 'No se pudo actualizar el rol '});
       return;
     }
+
+    res.status(200).send('Rol actualizado correctamente');
   }
 
   static show = async (req: Request, res: Response) => {
+    const roleService = Container.get(RoleService);
     const id: number = Number(req.params.id);
 
     const role = await roleService.findById(id);
@@ -101,6 +105,7 @@ class RoleController {
   }
 
   static destroy = async (req: Request, res: Response) => {
+    const roleService = Container.get(RoleService);
     const id: number = Number(req.params.id);
 
     const role = await roleService.findById(id);

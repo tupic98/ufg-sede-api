@@ -1,9 +1,14 @@
 import { DeleteResult, Repository } from 'typeorm';
 import { Role } from '../entities/Role';
+import { InjectRepository } from "typeorm-typedi-extensions";
+import { Service } from "typedi";
+import { PaginationAwareObject } from "typeorm-pagination/dist/helpers/pagination";
 
+@Service()
 export class RoleService {
   constructor(
-    private readonly roleRepository: Repository<Role>,
+    @InjectRepository(Role)
+    protected roleRepository: Repository<Role>,
   ) { }
 
   public async findById(id: number): Promise<Role | undefined> {
@@ -12,12 +17,12 @@ export class RoleService {
     });
   }
 
-  public async findAll(): Promise<Role[]> {
+  public async findAll(): Promise<PaginationAwareObject> {
     return await this.roleRepository
       .createQueryBuilder('role')
       .innerJoinAndSelect('role.permissions', 'permissions')
       .innerJoinAndSelect('role.users', 'users')
-      .getMany()
+      .paginate(10);
   }
 
   public async create(role: Role): Promise<Role> {

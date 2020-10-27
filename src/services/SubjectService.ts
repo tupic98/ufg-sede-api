@@ -1,25 +1,40 @@
 import { Repository, DeleteResult } from 'typeorm';
 import { Subject } from '../entities/Subject';
+import { Service } from 'typedi';
+import { InjectRepository } from "typeorm-typedi-extensions";
+import { PaginationAwareObject } from "typeorm-pagination/dist/helpers/pagination";
 
+@Service()
 export class SubjectService {
   constructor(
-    private readonly subjectRepository: Repository<Subject>,
-  ) {}
+    @InjectRepository(Subject)
+    protected subjectRepository: Repository<Subject>
+  ) { }
 
   public async findById(id: number): Promise<Subject | undefined> {
-    return await this.subjectRepository.findOneOrFail(id);
+    return await this.subjectRepository.findOne(id, {
+      select: ['id', 'name', 'grade', 'users'],
+    });
   }
 
-  public async findAll(): Promise<Subject[]> {
-    return await this.subjectRepository.find();
+  public async findByIds(ids: Array<number>): Promise<Subject[]> {
+    return await this.subjectRepository.findByIds(ids);
+  }
+
+  public async findAll(): Promise<PaginationAwareObject> {
+    return await this.subjectRepository
+      .createQueryBuilder('subject')
+      .innerJoinAndSelect('subject.grade', 'grade')
+      .innerJoinAndSelect('subject.users', 'users')
+      .paginate(10);
   }
 
   public async create(subject: Subject): Promise<Subject> {
     return await this.subjectRepository.save(subject);
   }
 
-  public async update(newSuject: Subject): Promise<Subject | undefined> {
-    const subject = await this.subjectRepository.findOneOrFail(newSuject.id);
+  public async update(newSubject: Subject): Promise<Subject | undefined> {
+    const subject = await this.subjectRepository.findOneOrFail(newSubject.id);
     if (!subject.id) {
       return new Promise((resolve, reject) => {
         setTimeout(function () {
@@ -30,8 +45,8 @@ export class SubjectService {
         }, 250);
       });
     }
-    await this.subjectRepository.update(newSuject.id, newSuject);
-    return await this.subjectRepository.findOne(newSuject.id);
+    await this.subjectRepository.update(newSubject.id, newSubject);
+    return await this.subjectRepository.findOne(newSubject.id);
   }
 
   public async delete(id: number): Promise<DeleteResult> {
