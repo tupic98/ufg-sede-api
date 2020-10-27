@@ -7,7 +7,7 @@ const getOptions = async () => {
     type: 'postgres',
     synchronize: false,
     logging: true,
-    entities: ['src/entities/**/*.ts', 'dist/entities/**/*.js'],
+    entities: ['dist/src/entities/**/*.js'],
   };
   if (process.env.DATABASE_URL) {
     Object.assign(connectionOptions, { url: process.env.DATABASE_URL });
