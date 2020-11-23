@@ -1,15 +1,16 @@
+import { SubjectToStudent } from './SubjectToStudent';
 import {
   Column,
   Entity,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
-  JoinColumn, ManyToMany,
+  JoinColumn,
 } from 'typeorm';
 import { Grade } from './Grade';
 import { Qualification } from './Qualification';
 import { User } from './User';
-import { Student } from "./Student";
+import { IsNotEmpty, IsString, IsNotEmptyObject } from 'class-validator';
 
 @Entity()
 export class Subject {
@@ -17,6 +18,8 @@ export class Subject {
   id: number;
 
   @Column({ name: 'subject_name', type: 'varchar', length: '30' })
+  @IsNotEmpty()
+  @IsString()
   name: string;
 
   @OneToMany(
@@ -36,8 +39,12 @@ export class Subject {
     (grade) => grade.subjects
   )
   @JoinColumn({ name: 'grade_id' })
+  @IsNotEmptyObject()
   grade: Grade;
 
-  @ManyToMany(() => Student, student => student.subjects)
-  students: Student[];
+  @OneToMany(
+    (type) => SubjectToStudent,
+    (subjectxstudent) => subjectxstudent.subject
+  )
+  studentQualifications: SubjectToStudent[];
 }

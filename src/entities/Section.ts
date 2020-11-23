@@ -1,3 +1,4 @@
+import { IsNotEmpty, IsString, Length } from 'class-validator';
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { Student } from './Student';
 
@@ -7,6 +8,9 @@ export class Section {
   id: number;
 
   @Column({ name: 'section_name', type: 'varchar', length: '20' })
+  @IsNotEmpty()
+  @IsString()
+  @Length(1, 20)
   name: string;
 
   @OneToMany(

@@ -6,7 +6,7 @@ import {
   OneToOne,
   JoinColumn,
 } from 'typeorm';
-import { Length } from 'class-validator';
+import { IsNotEmpty, Length, IsNotEmptyObject } from 'class-validator';
 import * as bcrypt from 'bcryptjs';
 import { Subject } from './Subject';
 import { Role } from './Role';
@@ -23,6 +23,7 @@ export class User {
 
   @OneToOne((type) => Person, { cascade: ['insert'] })
   @JoinColumn({ name: 'person_id' })
+  @IsNotEmptyObject()
   person: Person;
 
   @ManyToOne(
@@ -30,13 +31,15 @@ export class User {
     (role) => role.users
   )
   @JoinColumn({ name: 'role_id' })
+  @IsNotEmptyObject()
   role: Role;
 
   @ManyToOne(
     (type) => Subject,
     (subject) => subject.users
   )
-  @JoinColumn({ name: 'subject_id'} )
+  @JoinColumn({ name: 'subject_id' })
+  @IsNotEmptyObject()
   subject: Subject;
 
   async hashPassword() {
