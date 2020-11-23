@@ -12,9 +12,14 @@ export class SectionService {
   ) { }
 
   public async findById(id: number): Promise<Section | undefined> {
-    return await this.sectionRepository.findOneOrFail(id, {
-      select: ['id', 'name', 'students'],
-    })
+    return await this.sectionRepository.findOneOrFail(id);
+  }
+
+  public async findByIdWithRelations(id: number): Promise<Section | undefined> {
+    return await this.sectionRepository
+      .createQueryBuilder('section')
+      .leftJoinAndSelect('section.students', 'students')
+      .getOne();
   }
 
   public async findAll(): Promise<PaginationAwareObject> {

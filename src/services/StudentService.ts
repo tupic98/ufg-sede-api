@@ -19,23 +19,7 @@ export class StudentService {
   }
 
   public async findById(id: number): Promise<Student | undefined> {
-    return await this.studentRepository.findOne(id, {
-      select: [
-        'id',
-        'year',
-        'report',
-        'approved',
-        'finalAverage',
-        'institutionalAverage',
-        'code',
-        'firstTime',
-        'person',
-        'modality',
-        'section',
-        'grade',
-        'subjects',
-      ]
-    })
+    return await this.studentRepository.findOne(id);
   }
 
   public async findAll(): Promise<PaginationAwareObject> {
