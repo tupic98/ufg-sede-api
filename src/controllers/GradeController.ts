@@ -41,7 +41,7 @@ class GradeController {
       return;
     }
 
-    res.status(201).send('Grado creado correctamente');
+    res.status(201).json({ message: 'Grado creado correctamente' });
   }
 
   static update = async (req: Request, res: Response) => {
@@ -77,20 +77,20 @@ class GradeController {
     try {
       await gradeService.update(grade);
     } catch (e) {
-      res.status(400).json({ message: 'No se pudo actializar el grado '});
+      res.status(400).json({ message: 'No se pudo actializar el grado'});
       return;
     }
 
-    res.status(200).send('Grado actualizado');
+    res.status(200).json({ message: 'Grado actualizado' });
   }
 
   static show = async (req: Request, res: Response) => {
     const gradeService = Container.get(GradeService);
     const id: number = Number(req.params.id);
 
-    const grade = await gradeService.findById(id);
+    const grade = await gradeService.findByIdWithRelations(id);
     if (!grade) {
-      res.status(404).json({ message: 'Grado no encontrado '});
+      res.status(404).json({ message: 'Grado no encontrado'});
       return;
     }
     res.status(200).send(grade);
@@ -102,7 +102,7 @@ class GradeController {
 
     const grade = await gradeService.findById(id);
     if (!grade) {
-      res.status(404).json({ message: 'Grado no encontrado '});
+      res.status(404).json({ message: 'Grado no encontrado'});
       return;
     }
     await gradeService.delete(id);

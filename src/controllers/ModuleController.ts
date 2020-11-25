@@ -30,7 +30,7 @@ class ModuleController {
       res.status(400).json({ message: 'No se pudo crear el módulo '})
     }
 
-    res.status(201).send('Modulo creado correctamente');
+    res.status(201).json({ message: 'Modulo creado correctamente' });
   }
 
   static update = async (req: Request, res: Response) => {
@@ -59,7 +59,7 @@ class ModuleController {
       return;
     }
 
-    res.status(200).send('Modulo actualizado');
+    res.status(200).json({ message: 'Modulo actualizado' });
   }
 
   static show = async (req: Request, res: Response) => {
