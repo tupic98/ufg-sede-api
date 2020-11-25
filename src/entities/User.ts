@@ -6,7 +6,7 @@ import {
   OneToOne,
   JoinColumn,
 } from 'typeorm';
-import { IsNotEmpty, Length, IsNotEmptyObject } from 'class-validator';
+import { Length, IsNotEmptyObject } from 'class-validator';
 import * as bcrypt from 'bcryptjs';
 import { Subject } from './Subject';
 import { Role } from './Role';

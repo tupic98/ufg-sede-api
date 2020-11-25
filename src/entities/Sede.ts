@@ -12,7 +12,7 @@ export class Sede {
   @IsString()
   name: string;
 
-  @Column({ name: 'sede_logo', type: 'text' })
+  @Column({ name: 'sede_logo', type: 'text', nullable: true })
   @IsOptional()
   @IsString()
   logo: string;
@@ -22,8 +22,8 @@ export class Sede {
   @IsString()
   code: string;
 
-  @Column({ name: 'sede_address', type: 'text' })
-  @IsNotEmpty()
+  @Column({ name: 'sede_address', type: 'text', nullable: true })
+  @IsOptional()
   @IsString()
   address: string;
 

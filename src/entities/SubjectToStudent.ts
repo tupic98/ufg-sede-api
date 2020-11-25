@@ -1,7 +1,7 @@
 import { Student } from './Student';
 import { Entity, JoinColumn, ManyToOne, PrimaryColumn } from "typeorm";
 import { Subject } from './Subject';
-import { IsNotEmpty, IsNotEmptyObject } from 'class-validator';
+import { IsNotEmptyObject } from 'class-validator';
 
 @Entity()
 export class SubjectToStudent {
