@@ -62,7 +62,7 @@ class RoleController {
 
     const role = await roleService.findById(id);
     if (!role) {
-      res.status(404).json({ message: 'Role no encontrado '})
+      res.status(404).json({ message: 'Rol no encontrado' })
       return;
     }
 
