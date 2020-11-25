@@ -1,4 +1,4 @@
-import {DeleteResult, Repository} from "typeorm";
+import {DeleteResult, Repository, UpdateResult} from "typeorm";
 import {Modality} from "../entities/Modality";
 import { PaginationAwareObject } from "typeorm-pagination/dist/helpers/pagination";
 import { Service } from "typedi";
@@ -12,9 +12,7 @@ export class ModalityService {
   ) { }
 
   public async findById(id: number): Promise<Modality | undefined> {
-    return await this.modalityRepository.findOneOrFail(id, {
-      select: ['id', 'type']
-    });
+    return await this.modalityRepository.findOne(id);
   }
 
   public async findAll(): Promise<PaginationAwareObject> {
@@ -27,20 +25,8 @@ export class ModalityService {
     return await this.modalityRepository.save(modality);
   }
 
-  public async update(newModality: Modality): Promise<Modality | undefined> {
-    const modality = await this.modalityRepository.findOneOrFail(newModality.id);
-    if (!modality.id) {
-      return new Promise((resolve, reject) => {
-        setTimeout(function () {
-          reject({
-            statusCode: 404,
-            error: 'Modality not found',
-          })
-        }, 250);
-      })
-    }
-    await this.modalityRepository.update(newModality.id, newModality);
-    return await this.modalityRepository.findOne(newModality.id);
+  public async update(newModality: Modality): Promise<UpdateResult> {
+    return await this.modalityRepository.update(newModality.id, newModality);
   }
 
   public async delete(id: number): Promise<DeleteResult> {
