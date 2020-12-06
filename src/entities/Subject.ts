@@ -8,7 +8,6 @@ import {
   JoinColumn,
 } from 'typeorm';
 import { Grade } from './Grade';
-import { Qualification } from './Qualification';
 import { User } from './User';
 import { IsNotEmpty, IsString, IsNotEmptyObject } from 'class-validator';
 
@@ -21,12 +20,6 @@ export class Subject {
   @IsNotEmpty()
   @IsString()
   name: string;
-
-  @OneToMany(
-    (type) => Qualification,
-    (qualification) => qualification.subject
-  )
-  qualifications: Qualification[];
 
   @OneToMany(
     (type) => User,

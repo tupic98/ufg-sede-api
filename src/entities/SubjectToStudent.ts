@@ -1,11 +1,17 @@
+import { Column } from 'typeorm';
+// import { Qualification } from './Qualification';
 import { Student } from './Student';
-import { Entity, JoinColumn, ManyToOne, PrimaryColumn } from "typeorm";
+import { Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Subject } from './Subject';
 import { IsNotEmptyObject } from 'class-validator';
+import { Qualification } from './Qualification';
 
 @Entity()
 export class SubjectToStudent {
-    @PrimaryColumn({ name: 'student_code', type: 'varchar', length: '15' })
+    @PrimaryGeneratedColumn({ name: 'subject_student_id', type: 'int' })
+    id: number;
+
+    @Column({ name: 'student_code', type: 'varchar', length: '15' })
     student_code: string
 
     @ManyToOne(
@@ -23,4 +29,10 @@ export class SubjectToStudent {
     @JoinColumn({ name: 'subject_id ' })
     @IsNotEmptyObject()
     subject: Subject;
+
+    @OneToMany(
+      (type) => Qualification,
+      (qualification) => qualification.subjectStudent
+    )
+    qualifications: Qualification[]
 }
