@@ -17,10 +17,7 @@ export const checkStudentJWT = (req: Request, res: Response, next: NextFunction)
     res.sendStatus(401);
     return;
   }
-  const { studentId, code, isActive } = jwtPayload;
-  if (!isActive) {
-    res.sendStatus(401);
-  }
+  const { studentId, code } = jwtPayload;
   const newToken = jwt.sign({ studentId, code }, config.jwtSecret, {
     expiresIn: '1h',
   })
