@@ -1,3 +1,4 @@
+import { IsNotEmpty } from 'class-validator';
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { Student } from './Student';
 
@@ -7,6 +8,7 @@ export class Modality {
   id: number;
 
   @Column({ name: 'modality_type', type: 'varchar', length: '20' })
+  @IsNotEmpty()
   type: string;
 
   @OneToMany(

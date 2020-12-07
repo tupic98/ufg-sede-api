@@ -1,4 +1,4 @@
-import {DeleteResult, Repository} from "typeorm";
+import {DeleteResult, Repository, UpdateResult} from "typeorm";
 import {Student} from "../entities/Student";
 import { Service } from "typedi";
 import { InjectRepository } from "typeorm-typedi-extensions";
@@ -15,37 +15,57 @@ export class StudentService {
     return await this.studentRepository
       .createQueryBuilder('student')
       .where('student.code = :code', { code })
+      .leftJoinAndSelect('student.person', 'person')
+      .getOne();
+  }
+
+  public async findByCodeWithRelation(code: string): Promise<Student | undefined> {
+    return await this.studentRepository
+      .createQueryBuilder('student')
+      // .leftJoin('student.subjectQualifications', 'subjectQualifications')
+      // .leftJoin('subjectQualifications.qualifications', 'qualifications')
+      // .leftJoinAndMapOne('student.modules', 'qualifications.module', 'modules')
+      .where('student.code = :code', { code })
+      .leftJoinAndSelect('student.person', 'person')
+      .leftJoinAndSelect('student.modality', 'modality')
+      .leftJoinAndSelect('student.section', 'section')
+      .leftJoinAndSelect('student.grade', 'grade')
+      .leftJoinAndSelect('student.subjectQualifications', 'subjectQualifications')
+      .leftJoinAndSelect('subjectQualifications.subject', 'subject')
+      .leftJoinAndSelect('subjectQualifications.qualifications', 'qualifications')
+      .leftJoinAndSelect('qualifications.module', 'module')
       .getOne();
   }
 
   public async findById(id: number): Promise<Student | undefined> {
-    return await this.studentRepository.findOne(id, {
-      select: [
-        'id',
-        'year',
-        'report',
-        'approved',
-        'finalAverage',
-        'institutionalAverage',
-        'code',
-        'firstTime',
-        'person',
-        'modality',
-        'section',
-        'grade',
-        'subjects',
-      ]
-    })
+    return await this.studentRepository
+      .createQueryBuilder('student')
+      .where('student.id = :id', { id })
+      .leftJoinAndSelect('student.person', 'person')
+      .getOne();
+  }
+
+  public async findByIdWithRelation(id: number): Promise<Student | undefined> { 
+    return await this.studentRepository
+      .createQueryBuilder('student')
+      .leftJoinAndSelect('student.person', 'person')
+      .leftJoinAndSelect('student.modality', 'modality')
+      .leftJoinAndSelect('student.section', 'section')
+      .leftJoinAndSelect('student.grade', 'grade')
+      .leftJoinAndSelect('student.subjectQualifications', 'subjectQualifications')
+      .leftJoinAndSelect('subjectQualifications.subject', 'subject')
+      .leftJoinAndSelect('subjectQualifications.qualifications', 'qualifications')
+      .leftJoinAndSelect('qualifications.module', 'module')
+      .getOne();
   }
 
   public async findAll(): Promise<PaginationAwareObject> {
     return await this.studentRepository
       .createQueryBuilder('student')
-      .innerJoinAndSelect('student.person', 'person')
-      .innerJoinAndSelect('student.modality', 'modality')
-      .innerJoinAndSelect('student.section', 'section')
-      .innerJoinAndSelect('student.grade', 'grade')
-      .innerJoinAndSelect('student.subjects', 'subjects')
+      .leftJoinAndSelect('student.person', 'person')
+      .leftJoinAndSelect('student.modality', 'modality')
+      .leftJoinAndSelect('student.section', 'section')
+      .leftJoinAndSelect('student.grade', 'grade')
       .paginate(10);
   }
 
@@ -53,20 +73,8 @@ export class StudentService {
     return await this.studentRepository.save(student);
   }
 
-  public async update(newStudent: Student): Promise<Student | undefined> {
-    const student = await this.studentRepository.findOneOrFail(newStudent.id);
-    if (!student.id) {
-      return new Promise((resolve, reject) => {
-        setTimeout(function () {
-          reject({
-            statusCode: 404,
-            error: 'Student not found',
-          })
-        }, 250);
-      })
-    }
-    await this.studentRepository.update(newStudent.id, newStudent);
-    return await this.studentRepository.findOne(newStudent.id);
+  public async update(newStudent: Student): Promise<UpdateResult> {
+    return await this.studentRepository.update(newStudent.id, newStudent);
   }
 
   public async delete(id: number): Promise<DeleteResult> {

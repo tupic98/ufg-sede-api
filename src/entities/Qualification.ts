@@ -7,8 +7,9 @@ import {
   UpdateDateColumn,
   JoinColumn,
 } from 'typeorm';
-import { Subject } from './Subject';
 import { Module } from './Module';
+import { IsBoolean, IsNotEmpty, IsNotEmptyObject, IsNumber, IsOptional, IsString } from 'class-validator';
+import { SubjectToStudent } from './SubjectToStudent';
 
 @Entity()
 export class Qualification {
@@ -21,21 +22,33 @@ export class Qualification {
     precision: 4,
     scale: 2,
   })
+  @IsNotEmpty()
+  @IsNumber()
   note: number;
 
   @Column({ name: 'qualification_approved', type: 'boolean' })
+  @IsNotEmpty()
+  @IsBoolean()
   approved: boolean;
 
   @Column({ name: 'qualification_recoverLink', type: 'text' })
+  @IsOptional()
+  @IsString()
   recoverLink: string;
 
   @Column({ name: 'qualification_recoverEnabled', type: 'boolean' })
+  @IsNotEmpty()
+  @IsBoolean()
   recoverEnabled: boolean;
 
   @Column({ name: 'qualification_extTest', type: 'boolean' })
+  @IsNotEmpty()
+  @IsBoolean()
   isExternalTest: boolean;
 
   @Column({ name: 'qualification_updatedBy', type: 'text' })
+  @IsOptional()
+  @IsString()
   updatedBy: string;
 
   @UpdateDateColumn({ name: 'updated_at' })
@@ -45,16 +58,18 @@ export class Qualification {
   createdAt: Date;
 
   @ManyToOne(
-    (type) => Subject,
-    (subject) => subject.qualifications
+    (type) => SubjectToStudent,
+    (subjectStudent) => subjectStudent.qualifications
   )
-  @JoinColumn({ name: 'subject_id' })
-  subject: Subject;
+  @JoinColumn({ name: 'subject_student_id' })
+  @IsNotEmptyObject()
+  subjectStudent: SubjectToStudent;
 
   @ManyToOne(
     (type) => Module,
     (module) => module.qualifications
   )
   @JoinColumn({ name: 'module_id' })
+  @IsNotEmptyObject()
   module: Module;
 }

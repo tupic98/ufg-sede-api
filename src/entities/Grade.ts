@@ -1,3 +1,4 @@
+import { IsNotEmpty, IsNumber, IsString, Length } from 'class-validator';
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { Student } from './Student';
 import { Subject } from './Subject';
@@ -7,7 +8,10 @@ export class Grade {
   @PrimaryGeneratedColumn({ name: 'grade_id', type: 'int' })
   id: number;
 
-  @Column({ name: 'grade_grade', type: 'varchar', length: '10' })
+  @Column({ name: 'grade_grade', type: 'varchar', length: '40' })
+  @IsNotEmpty()
+  @IsString()
+  @Length(3, 40)
   grade: string;
 
   @Column({
@@ -16,6 +20,8 @@ export class Grade {
     precision: 3,
     scale: 2,
   })
+  @IsNotEmpty()
+  @IsNumber()
   institutionalPercentage: number;
 
   @Column({
@@ -24,6 +30,8 @@ export class Grade {
     precision: 3,
     scale: 2,
   })
+  @IsNotEmpty()
+  @IsNumber()
   externalPercentage: number;
 
   @OneToMany(

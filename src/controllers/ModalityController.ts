@@ -30,7 +30,7 @@ class ModalityController {
       res.status(400).json({ message: 'No se pudo crear la modalidad '});
       return;
     }
-    res.status(201).send('Modalidad creada correctamente');
+    res.status(201).json({ message: 'Modalidad creada correctamente' });
   }
 
   static update = async (req: Request, res: Response) => {
@@ -59,7 +59,7 @@ class ModalityController {
       return;
     }
 
-    res.status(200).send('Modalidad actualizada');
+    res.status(200).json({ message: 'Modalidad actualizada' });
   }
 
   static show = async (req: Request, res: Response) => {
@@ -73,7 +73,7 @@ class ModalityController {
     res.status(200).send(modality);
   }
 
-  static destory = async (req: Request, res: Response) => {
+  static destroy = async (req: Request, res: Response) => {
     const modalityService = Container.get(ModalityService);
     const id: number = Number(req.params.id);
     const modality = await modalityService.findById(id);

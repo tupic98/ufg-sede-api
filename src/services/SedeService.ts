@@ -1,4 +1,4 @@
-import { DeleteResult, Repository } from 'typeorm';
+import { DeleteResult, Repository, UpdateResult } from 'typeorm';
 import { Sede } from '../entities/Sede';
 import { Service } from "typedi";
 import { InjectRepository } from "typeorm-typedi-extensions";
@@ -12,9 +12,7 @@ export class SedeService {
   ) { }
 
   public async findById(id: number): Promise<Sede | undefined> {
-    return await this.sedeRepository.findOneOrFail(id, {
-      select: ['id', 'logo', 'name', 'address', 'code'],
-    });
+    return await this.sedeRepository.findOne(id);
   }
 
   public async findAll(): Promise<PaginationAwareObject> {
@@ -27,20 +25,8 @@ export class SedeService {
     return await this.sedeRepository.save(sede);
   }
 
-  public async update(newSede: Sede): Promise<Sede | undefined> {
-    const sede = await this.sedeRepository.findOneOrFail(newSede.id);
-    if (!sede.id) {
-      return new Promise((resolve, reject) => {
-        setTimeout(function () {
-          reject({
-            statusCode: 404,
-            error: 'Sede not found',
-          });
-        }, 250);
-      });
-    }
-    await this.sedeRepository.update(newSede.id, newSede);
-    return await this.sedeRepository.findOne(newSede.id);
+  public async update(newSede: Sede): Promise<UpdateResult> {
+    return await this.sedeRepository.update(newSede.id, newSede);
   }
 
   public async delete(id: number): Promise<DeleteResult> {

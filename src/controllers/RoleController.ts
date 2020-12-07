@@ -50,7 +50,7 @@ class RoleController {
       return;
     }
 
-    res.status(201).send('Rol creado correctamente');
+    res.status(201).json({ message: 'Rol creado correctamente' });
   }
 
   static update = async (req: Request, res: Response) => {
@@ -62,7 +62,7 @@ class RoleController {
 
     const role = await roleService.findById(id);
     if (!role) {
-      res.status(404).json({ message: 'Role no encontrado '})
+      res.status(404).json({ message: 'Rol no encontrado' })
       return;
     }
 
@@ -89,14 +89,14 @@ class RoleController {
       return;
     }
 
-    res.status(200).send('Rol actualizado correctamente');
+    res.status(200).json({ message: 'Rol actualizado correctamente' });
   }
 
   static show = async (req: Request, res: Response) => {
     const roleService = Container.get(RoleService);
     const id: number = Number(req.params.id);
 
-    const role = await roleService.findById(id);
+    const role = await roleService.findByIdWithRelations(id);
     if (!role) {
       res.status(404).json({ message: 'Rol no encontrado '});
       return;

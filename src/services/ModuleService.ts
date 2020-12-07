@@ -1,7 +1,7 @@
 import { Service } from "typedi";
 import { InjectRepository } from "typeorm-typedi-extensions";
 import { Module } from "../entities/Module";
-import { DeleteResult, Repository } from "typeorm";
+import { DeleteResult, Repository, UpdateResult } from "typeorm";
 import { PaginationAwareObject } from "typeorm-pagination/dist/helpers/pagination";
 
 @Service()
@@ -12,9 +12,7 @@ export class ModuleService {
   ) { }
 
   public async findById(id: number): Promise<Module | undefined> {
-    return await this.moduleRepository.findOneOrFail(id, {
-      select: ['id', 'moduleNumber']
-    })
+    return await this.moduleRepository.findOne(id);
   }
 
   public async findAll(): Promise<PaginationAwareObject> {
@@ -27,20 +25,8 @@ export class ModuleService {
     return await this.moduleRepository.save(module);
   }
 
-  public async update(newModule: Module): Promise<Module | undefined> {
-    const module = await this.moduleRepository.findOneOrFail(newModule.id);
-    if (!module.id) {
-      return new Promise((resolve, reject) => {
-        setTimeout(function () {
-          reject({
-            statusCode: 404,
-            error: 'Module not found',
-          })
-        }, 250);
-      });
-    }
-    await this.moduleRepository.update(newModule.id, newModule);
-    return await this.moduleRepository.findOne(newModule.id);
+  public async update(newModule: Module): Promise<UpdateResult> {
+    return await this.moduleRepository.update(newModule.id, newModule);
   }
 
   public async delete(id: number): Promise<DeleteResult> {

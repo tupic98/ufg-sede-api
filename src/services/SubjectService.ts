@@ -1,5 +1,5 @@
-import { Repository, DeleteResult } from 'typeorm';
-import { Subject } from '../entities/Subject';
+import { Subject } from './../entities/Subject';
+import { Repository, DeleteResult, UpdateResult } from 'typeorm';
 import { Service } from 'typedi';
 import { InjectRepository } from "typeorm-typedi-extensions";
 import { PaginationAwareObject } from "typeorm-pagination/dist/helpers/pagination";
@@ -12,9 +12,19 @@ export class SubjectService {
   ) { }
 
   public async findById(id: number): Promise<Subject | undefined> {
-    return await this.subjectRepository.findOne(id, {
-      select: ['id', 'name', 'grade', 'users'],
-    });
+    return await this.subjectRepository
+      .createQueryBuilder('subject')
+      .where('subject.id = :id', { id })
+      .getOne();
+  }
+
+  public async findByIdWithRelation(id: number): Promise<Subject | undefined> {
+    return await this.subjectRepository
+      .createQueryBuilder('subject')
+      .leftJoinAndSelect('subject.grade', 'grade')
+      .leftJoinAndSelect('subject.users', 'users')
+      .where('subject.id = :id', { id })
+      .getOne();
   }
 
   public async findByIds(ids: Array<number>): Promise<Subject[]> {
@@ -24,8 +34,9 @@ export class SubjectService {
   public async findAll(): Promise<PaginationAwareObject> {
     return await this.subjectRepository
       .createQueryBuilder('subject')
-      .innerJoinAndSelect('subject.grade', 'grade')
-      .innerJoinAndSelect('subject.users', 'users')
+      .leftJoinAndSelect('subject.grade', 'grade')
+      .leftJoinAndSelect('subject.users', 'users')
+      .orderBy('subject.id', "ASC")
       .paginate(10);
   }
 
@@ -33,20 +44,8 @@ export class SubjectService {
     return await this.subjectRepository.save(subject);
   }
 
-  public async update(newSubject: Subject): Promise<Subject | undefined> {
-    const subject = await this.subjectRepository.findOneOrFail(newSubject.id);
-    if (!subject.id) {
-      return new Promise((resolve, reject) => {
-        setTimeout(function () {
-          reject({
-            statusCode: 404,
-            error: 'Subject not found',
-          })
-        }, 250);
-      });
-    }
-    await this.subjectRepository.update(newSubject.id, newSubject);
-    return await this.subjectRepository.findOne(newSubject.id);
+  public async update(newSubject: Subject): Promise<UpdateResult> {
+    return await this.subjectRepository.update(newSubject.id, newSubject);
   }
 
   public async delete(id: number): Promise<DeleteResult> {

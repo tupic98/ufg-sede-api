@@ -1,3 +1,4 @@
+import { IsNotEmpty, IsString, IsOptional } from 'class-validator';
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { Person } from './Person';
 
@@ -7,15 +8,23 @@ export class Sede {
   id: number;
 
   @Column({ name: 'sede_name', type: 'text' })
+  @IsNotEmpty()
+  @IsString()
   name: string;
 
-  @Column({ name: 'sede_logo', type: 'text' })
+  @Column({ name: 'sede_logo', type: 'text', nullable: true })
+  @IsOptional()
+  @IsString()
   logo: string;
 
   @Column({ name: 'sede_code', type: 'text' })
+  @IsNotEmpty()
+  @IsString()
   code: string;
 
-  @Column({ name: 'sede_address', type: 'text' })
+  @Column({ name: 'sede_address', type: 'text', nullable: true })
+  @IsOptional()
+  @IsString()
   address: string;
 
   @OneToMany(

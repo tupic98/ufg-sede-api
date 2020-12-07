@@ -6,7 +6,7 @@ import {
   PrimaryGeneratedColumn,
   JoinColumn,
 } from 'typeorm';
-import { IsEmail, IsOptional, Length, MaxLength } from 'class-validator';
+import { IsBoolean, IsEmail, IsNotEmpty, IsNotEmptyObject, IsOptional, Length, MaxLength } from 'class-validator';
 import { Sede } from './Sede';
 
 @Entity()
@@ -27,26 +27,29 @@ export class Person {
   @Length(3, 40)
   lastName: string;
 
-  @Column({ name: 'person_phoneNumber', type: 'varchar', length: '8' })
+  @Column({ name: 'person_phoneNumber', type: 'varchar', length: '8', nullable: true })
   @IsOptional()
   @Length(8, 8)
   phoneNumber: string;
 
-  @Column({ name: 'person_email', type: 'varchar', length: '60' })
+  @Column({ name: 'person_email', type: 'varchar', length: '60', nullable: true })
   @IsOptional()
   @MaxLength(60)
   @IsEmail()
   email: string;
 
-  @Column({ name: 'person_altPhoneNumber', type: 'varchar', length: '8' })
+  @Column({ name: 'person_altPhoneNumber', type: 'varchar', length: '8', nullable: true })
   @IsOptional()
   @Length(8, 8)
   altPhoneNumber: string;
 
   @Column({ name: 'person_status', type: 'boolean', default: 'true' })
+  @IsNotEmpty()
+  @IsBoolean()
   status: boolean;
 
   @ManyToOne((type) => Sede, (sede) => sede.persons)
   @JoinColumn({ name: 'sede_id' })
+  @IsNotEmptyObject()
   sede: Sede;
 }

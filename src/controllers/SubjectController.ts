@@ -41,7 +41,7 @@ class SubjectController {
       return;
     }
 
-    res.status(201).send('Materia creada correctamente');
+    res.status(201).json({ message: 'Materia creada correctamente' });
   }
 
   static update = async (req: Request, res: Response) => {
@@ -79,14 +79,14 @@ class SubjectController {
       return;
     }
 
-    res.status(200).send('Materia actualizada');
+    res.status(200).json({ message: 'Materia actualizada' });
   }
 
   static show = async (req: Request, res: Response) => {
     const subjectService = Container.get(SubjectService);
     const id: number = Number(req.params.id);
 
-    const subject = await subjectService.findById(id);
+    const subject = await subjectService.findByIdWithRelation(id);
     if (!subject) {
       res.status(404).json({ message: 'Materia no encontrada ' });
       return;

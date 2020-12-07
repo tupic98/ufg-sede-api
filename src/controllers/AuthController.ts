@@ -57,12 +57,12 @@ class AuthController {
     }
 
     const token = jwt.sign(
-      { studentId: student.id, code: student.code },
+      { studentId: student.id, code: student.code, isActive: student.person.status },
       config.jwtSecret,
       { expiresIn: '1h' }
     );
 
-    res.send(token);
+    res.status(200).json({ token, type: 'Bearer' });
   }
 
   // static changePassword = async (req: Request, res: Response) => {

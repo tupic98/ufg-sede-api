@@ -1,4 +1,4 @@
-import { DeleteResult, Repository } from 'typeorm';
+import { DeleteResult, Repository, UpdateResult } from 'typeorm';
 import { Role } from '../entities/Role';
 import { InjectRepository } from "typeorm-typedi-extensions";
 import { Service } from "typedi";
@@ -12,16 +12,21 @@ export class RoleService {
   ) { }
 
   public async findById(id: number): Promise<Role | undefined> {
-    return await this.roleRepository.findOneOrFail(id, {
-      select: ['id', 'name', 'type', 'permissions', 'users'],
-    });
+    return await this.roleRepository.findOne(id);
+  }
+
+  public async findByIdWithRelations(id: number): Promise<Role | undefined> {
+    return await this.roleRepository
+      .createQueryBuilder('role')
+      .leftJoinAndSelect('role.permissions', 'permissions')
+      .where('role.id = :id', { id })
+      .getOne();
   }
 
   public async findAll(): Promise<PaginationAwareObject> {
     return await this.roleRepository
       .createQueryBuilder('role')
-      .innerJoinAndSelect('role.permissions', 'permissions')
-      .innerJoinAndSelect('role.users', 'users')
+      .leftJoinAndSelect('role.permissions', 'permissions')
       .paginate(10);
   }
 
@@ -29,20 +34,8 @@ export class RoleService {
     return await this.roleRepository.save(role);
   }
 
-  public async update(newRole: Role): Promise<Role | undefined> {
-    const role = await this.roleRepository.findOneOrFail(newRole.id);
-    if (!role.id) {
-      return new Promise((resolve, reject) => {
-        setTimeout(function () {
-          reject({
-            statusCode: 404,
-            error: 'Role not found',
-          })
-        }, 250);
-      })
-    }
-    await this.roleRepository.update(newRole.id, newRole);
-    return await this.roleRepository.findOne(newRole.id);
+  public async update(newRole: Role): Promise<UpdateResult> {
+    return await this.roleRepository.update(newRole.id, newRole);
   }
 
   public async delete(id: number): Promise<DeleteResult> {

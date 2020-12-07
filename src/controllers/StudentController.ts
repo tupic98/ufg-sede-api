@@ -1,11 +1,10 @@
+import { StudentService } from './../services/StudentService';
 import { Request, Response } from "express";
 import { Student } from "../entities/Student";
-import { StudentService } from "../services/StudentService";
 import { SedeService } from "../services/SedeService";
 import { ModalityService } from "../services/ModalityService";
 import { SectionService } from "../services/SectionService";
 import { GradeService } from "../services/GradeService";
-import { SubjectService } from "../services/SubjectService";
 import { Person } from "../entities/Person";
 import { validate } from "class-validator";
 import { Container } from "typedi";
@@ -21,7 +20,7 @@ class StudentController {
     const studentService = Container.get(StudentService);
     const id: number = Number(req.params.id);
 
-    const student = await studentService.findById(id);
+    const student = await studentService.findByIdWithRelation(id);
     if (!student) {
       res.status(404).json({ message: 'Estudiante no encontrado '});
       return;
@@ -35,7 +34,6 @@ class StudentController {
     const studentService = Container.get(StudentService);
     const modalityService = Container.get(ModalityService);
     const sectionService = Container.get(SectionService);
-    const subjectService = Container.get(SubjectService);
     const {
       year,
       report,
@@ -47,7 +45,7 @@ class StudentController {
       modalityId,
       sectionId,
       gradeId,
-      subjectId
+      
     }: {
       year: number,
       report: string,
@@ -59,7 +57,6 @@ class StudentController {
       modalityId: number,
       sectionId: number,
       gradeId: number,
-      subjectId: Array<number>,
     } = req.body;
 
     //Getting sede information
@@ -91,8 +88,6 @@ class StudentController {
     }
 
     //Getting subjects information
-    const subjects = await subjectService.findByIds(subjectId);
-
     let userCode = '';
     firstName.split(' ').forEach((name: string) => {
       userCode = `${userCode}${name.slice(0, 1).toUpperCase()}`;
@@ -120,7 +115,6 @@ class StudentController {
     const student = new Student();
 
     student.code = `${sede.code.toUpperCase()}${userCode}`
-    student.subjects = subjects;
     student.grade = grade;
     student.section = section;
     student.modality = modality;
@@ -151,7 +145,6 @@ class StudentController {
     const studentService = Container.get(StudentService);
     const modalityService = Container.get(ModalityService);
     const sectionService = Container.get(SectionService);
-    const subjectService = Container.get(SubjectService);
     const id: number = Number(req.params.id);
 
     const {
@@ -165,7 +158,6 @@ class StudentController {
       modalityId,
       sectionId,
       gradeId,
-      subjectId,
       username,
       code,
     }: {
@@ -179,7 +171,6 @@ class StudentController {
       modalityId: number,
       sectionId: number,
       gradeId: number,
-      subjectId: Array<number>,
       username?: string,
       code?: string,
     } = req.body;
@@ -219,9 +210,6 @@ class StudentController {
       return;
     }
 
-    //Getting subjects information
-    const subjects = await subjectService.findByIds(subjectId);
-
     //Setting person information
     if (username) {
       student.person.username = username;
@@ -241,7 +229,6 @@ class StudentController {
     if (code) {
       student.code = code;
     }
-    student.subjects = subjects;
     student.grade = grade;
     student.section = section;
     student.modality = modality;
@@ -276,6 +263,46 @@ class StudentController {
 
     await studentService.delete(id);
     res.status(204).send();
+  }
+
+  static showByCode = async (req: Request, res: Response) => {
+    const studentService = Container.get(StudentService);
+    const code = res.locals.jwtPayload.code;
+
+    const student = await studentService.findByCodeWithRelation(code);
+    if (!student) {
+      res.status(404).json({ message: 'Estudiante no encontrado' });
+      return;
+    }
+    const { subjectQualifications, person, ...rest } = student;
+
+    const modules = {}
+
+    subjectQualifications.map((s) => {
+      s.qualifications.map((q) => {
+        if (!modules?.[q.module.moduleNumber]) {
+          Reflect.set(modules, q.module.moduleNumber, []);
+        }
+        const { module, ...res } = q;
+        modules[q.module.moduleNumber].push({
+          subject: s.subject.name,
+          ...res,
+        })
+      })
+    })
+
+    const studentData = {
+      ...rest,
+      ...person,
+      modality: rest.modality.type,
+      section: rest.section.name,
+      grade: rest.grade.grade,
+    }
+
+    res.status(200).send({
+      ...studentData,
+      modules,
+    });
   }
 }
 

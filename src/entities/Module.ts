@@ -1,3 +1,4 @@
+import { IsNotEmpty, IsNumber } from 'class-validator';
 import { Entity, OneToMany, PrimaryGeneratedColumn, Column } from 'typeorm';
 import { Qualification } from './Qualification';
 
@@ -11,6 +12,8 @@ export class Module {
     type: 'numeric',
     precision: 4,
   })
+  @IsNotEmpty()
+  @IsNumber()
   moduleNumber: number;
 
   @OneToMany(
