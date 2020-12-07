@@ -280,7 +280,7 @@ class StudentController {
 
     subjectQualifications.map((s) => {
       s.qualifications.map((q) => {
-        if (!modules?.[q.module.moduleNumber]) {
+        if (!modules[q.module.moduleNumber]) {
           Reflect.set(modules, q.module.moduleNumber, []);
         }
         const { module, ...res } = q;
