@@ -3,8 +3,12 @@ import * as jwt from 'jsonwebtoken';
 import config from '../../config/config';
 
 export const checkStudentJWT = (req: Request, res: Response, next: NextFunction) => {
-  const token = <string>req.headers['Authorization'];
+  let token = <string>req.headers['authorization'];
   let jwtPayload;
+
+  if (token.startsWith('Bearer ')) {
+    token = token.slice(7, token.length);
+  }
 
   try {
     jwtPayload = <any>jwt.verify(token, config.jwtSecret);
@@ -13,12 +17,13 @@ export const checkStudentJWT = (req: Request, res: Response, next: NextFunction)
     res.sendStatus(401);
     return;
   }
-
-  const { studentId, code } = jwtPayload;
+  const { studentId, code, isActive } = jwtPayload;
+  if (!isActive) {
+    res.sendStatus(401);
+  }
   const newToken = jwt.sign({ studentId, code }, config.jwtSecret, {
     expiresIn: '1h',
   })
   res.setHeader('token', newToken);
-
   next();
 }
