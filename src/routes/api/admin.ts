@@ -6,6 +6,7 @@ import GradeRouter from './admin/GradeRouter';
 import ModalityRouter from './admin/ModalityRouter';
 import SedeRouter from './admin/SedeRouter';
 import ModuleRouter from './admin/ModuleRouter';
+import StudentRouter from './admin/StudentRouter';
 
 const router: Router = Router();
 
@@ -16,5 +17,6 @@ router.use('/subjects', SubjectRouter);
 router.use('/grades', GradeRouter);
 router.use('/sede', SedeRouter);
 router.use('/module', ModuleRouter);
+router.use('/students', StudentRouter);
 
 export default router;
