@@ -12,7 +12,10 @@ export class SubjectService {
   ) { }
 
   public async findById(id: number): Promise<Subject | undefined> {
-    return await this.subjectRepository.findOne(id);
+    return await this.subjectRepository
+      .createQueryBuilder('subject')
+      .where('subject.id = :id', { id })
+      .getOne();
   }
 
   public async findByIdWithRelation(id: number): Promise<Subject | undefined> {
