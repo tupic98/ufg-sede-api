@@ -21,21 +21,7 @@ export class QualificationService {
   }
 
   public async findById(id: number): Promise<Qualification | undefined> {
-    return await this.qualificationRepository.findOneOrFail(id, {
-      select: [
-        'id',
-        'note',
-        'recoverEnabled',
-        'isExternalTest',
-        'recoverLink',
-        'approved',
-        'subject',
-        'module',
-        'createdAt',
-        'updatedAt',
-        'updatedBy',
-      ]
-    })
+    return await this.qualificationRepository.findOneOrFail(id)
   }
 
   public async findByIds(ids: Array<number>): Promise<Qualification[]> {
