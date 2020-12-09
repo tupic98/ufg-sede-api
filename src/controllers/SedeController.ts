@@ -70,8 +70,7 @@ class SedeController {
 
   static show = async (req: Request, res: Response) => {
     const sedeService = Container.get(SedeService);
-    const id: number = Number(req.params.id);
-    const sede = await sedeService.findById(id);
+    const sede = await sedeService.findById(1);
     if (!sede) {
       res.status(404).json({ message: 'Sede no encontrada '});
       return;

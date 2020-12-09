@@ -11,6 +11,12 @@ class ModuleController {
     res.status(200).send(modules);
   }
 
+  static list = async (req: Request, res: Response) => {
+    const moduleService = Container.get(ModuleService);
+    const modules = await moduleService.listAll();
+    res.status(200).send(modules);
+  }
+
   static store = async (req: Request, res: Response) => {
     const moduleService = Container.get(ModuleService);
     const { moduleNumber }: { moduleNumber: number } = req.body;

@@ -16,6 +16,7 @@ export class StudentService {
       .createQueryBuilder('student')
       .where('student.code = :code', { code })
       .leftJoinAndSelect('student.person', 'person')
+      .leftJoinAndSelect('person.sede', 'sede')
       .getOne();
   }
 
@@ -27,6 +28,7 @@ export class StudentService {
       // .leftJoinAndMapOne('student.modules', 'qualifications.module', 'modules')
       .where('student.code = :code', { code })
       .leftJoinAndSelect('student.person', 'person')
+      .leftJoinAndSelect('person.sede', 'sede')
       .leftJoinAndSelect('student.modality', 'modality')
       .leftJoinAndSelect('student.section', 'section')
       .leftJoinAndSelect('student.grade', 'grade')
@@ -42,20 +44,18 @@ export class StudentService {
       .createQueryBuilder('student')
       .where('student.id = :id', { id })
       .leftJoinAndSelect('student.person', 'person')
+      .leftJoinAndSelect('person.sede', 'sede')
       .getOne();
   }
 
-  public async findByIdWithRelation(id: number): Promise<Student | undefined> { 
+  public async findByIdWithRelation(id: number): Promise<Student | undefined> {
     return await this.studentRepository
       .createQueryBuilder('student')
       .leftJoinAndSelect('student.person', 'person')
+      .leftJoinAndSelect('person.sede', 'sede')
       .leftJoinAndSelect('student.modality', 'modality')
       .leftJoinAndSelect('student.section', 'section')
       .leftJoinAndSelect('student.grade', 'grade')
-      .leftJoinAndSelect('student.subjectQualifications', 'subjectQualifications')
-      .leftJoinAndSelect('subjectQualifications.subject', 'subject')
-      .leftJoinAndSelect('subjectQualifications.qualifications', 'qualifications')
-      .leftJoinAndSelect('qualifications.module', 'module')
       .getOne();
   }
 
