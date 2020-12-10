@@ -12,7 +12,9 @@ export class RoleService {
   ) { }
 
   public async findById(id: number): Promise<Role | undefined> {
-    return await this.roleRepository.findOne(id);
+    return await this.roleRepository.createQueryBuilder('role')
+        .where('role.id = :id', { id })
+        .getOne();
   }
 
   public async findByIdWithRelations(id: number): Promise<Role | undefined> {
@@ -28,6 +30,12 @@ export class RoleService {
       .createQueryBuilder('role')
       .leftJoinAndSelect('role.permissions', 'permissions')
       .paginate(10);
+  }
+
+  public async listAll(): Promise<Role[]> {
+    return await this.roleRepository
+        .createQueryBuilder('role')
+        .getMany();
   }
 
   public async create(role: Role): Promise<Role> {

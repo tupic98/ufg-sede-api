@@ -56,6 +56,7 @@ export class StudentService {
       .leftJoinAndSelect('student.modality', 'modality')
       .leftJoinAndSelect('student.section', 'section')
       .leftJoinAndSelect('student.grade', 'grade')
+      .where('student.id = :id', { id })
       .getOne();
   }
 

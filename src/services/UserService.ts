@@ -14,6 +14,7 @@ export class UserService {
   public async findByUsernameWithRole(username: string): Promise<User | undefined> {
     return await this.userRepository
       .createQueryBuilder('user')
+      .addSelect('user.password')
       .innerJoinAndSelect('user.role', 'role')
       .innerJoinAndSelect('user.person', 'person')
       .where('person.username = :username', { username })
@@ -21,17 +22,27 @@ export class UserService {
   }
 
   public async findById(id: number): Promise<User | undefined> {
-    return await this.userRepository.findOneOrFail(id, {
-        select: ['id', 'role', 'person', 'subject'],
-    });
+    return await this.userRepository.createQueryBuilder('user')
+        .where('user.id = :id', { id })
+        .getOne()
+  }
+
+  public async findByIdWithRelations(id: number): Promise<User | undefined> {
+    return await this.userRepository.createQueryBuilder('user')
+        .leftJoinAndSelect('user.role', 'role')
+        .leftJoinAndSelect('user.person', 'person')
+        .leftJoinAndSelect('user.subject', 'subject')
+        .leftJoinAndSelect('person.sede', 'sede')
+        .where('user.id = :id', { id })
+        .getOne()
   }
 
   public async findAll(): Promise<PaginationAwareObject> {
     return await this.userRepository
       .createQueryBuilder('user')
-      .innerJoinAndSelect('user.role', 'role')
-      .innerJoinAndSelect('user.person', 'person')
-      .innerJoinAndSelect('user.subject', 'subject')
+      .leftJoinAndSelect('user.role', 'role')
+      .leftJoinAndSelect('user.person', 'person')
+      .leftJoinAndSelect('user.subject', 'subject')
       .paginate(10);
   }
 

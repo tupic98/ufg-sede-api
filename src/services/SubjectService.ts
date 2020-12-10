@@ -40,6 +40,13 @@ export class SubjectService {
       .paginate(10);
   }
 
+  public async listAll(): Promise<Subject[]> {
+    return await this.subjectRepository
+        .createQueryBuilder('subject')
+        .orderBy('subject.id', 'ASC')
+        .getMany();
+  }
+
   public async create(subject: Subject): Promise<Subject> {
     return await this.subjectRepository.save(subject);
   }
