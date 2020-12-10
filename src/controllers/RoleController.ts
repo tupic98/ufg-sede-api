@@ -12,6 +12,12 @@ class RoleController {
     res.status(200).send(roles);
   }
 
+  static list = async (req: Request, res: Response) => {
+    const roleService = Container.get(RoleService);
+    const roles = await roleService.listAll();
+    res.status(200).send(roles);
+  }
+
   static store = async (req: Request, res: Response) => {
     const permissionService = Container.get(PermissionService);
     const roleService = Container.get(RoleService);

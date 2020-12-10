@@ -18,7 +18,7 @@ class AuthController {
 
     const user = await userService.findByUsernameWithRole(username);
     if (!user) {
-      res.send(400).json({ message: 'Usuario incorrecto' });
+      res.status(400).json({ message: 'Usuario incorrecto' });
       return
     }
 
@@ -36,7 +36,7 @@ class AuthController {
     );
 
     //Send the jwt in the response
-    res.send(token);
+    res.status(200).json({ token, type: 'Bearer' });
   };
 
   static signUp = async (req: Request, res: Response) => {

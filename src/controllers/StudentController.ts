@@ -295,6 +295,9 @@ class StudentController {
       return;
     }
 
+    console.log('Person: ', person);
+    console.log('Student: ', student);
+
     student.person = person;
     student.firstTime = false;
 
@@ -305,6 +308,7 @@ class StudentController {
     }
 
     try {
+      await personService.update(person);
       await studentService.update(student);
     } catch (error) {
       res.status(400).json({ message: 'No se pudo actualizar el contacto del estudiante', error })
@@ -329,6 +333,7 @@ class StudentController {
     res.status(200).send({
       ...rest,
       ...person,
+      id: rest.id,
     });
   }
 
@@ -362,6 +367,7 @@ class StudentController {
     const studentData = {
       ...rest,
       ...person,
+      id: rest.id,
       modality: rest.modality.type,
       section: rest.section.name,
       grade: rest.grade.grade,

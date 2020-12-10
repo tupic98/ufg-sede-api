@@ -11,6 +11,12 @@ class SedeController {
     res.status(200).send(sedeList);
   }
 
+  static list = async (req: Request, res: Response) => {
+    const sedeService = Container.get(SedeService);
+    const sedeList = await sedeService.listAll();
+    res.status(200).send(sedeList);
+  }
+
   static store = async (req: Request, res: Response) => {
     const sedeService = Container.get(SedeService);
     const { name, logo, code, address }: { name: string, logo: string, code: string, address: string } = req.body;
