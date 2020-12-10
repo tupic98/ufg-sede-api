@@ -21,10 +21,10 @@ export class Role {
   @Length(1, 20)
   name: string;
 
-  @Column({ name: 'role_type', type: 'varchar', length: '8' })
+  @Column({ name: 'role_type', type: 'varchar', length: '20' })
   @IsNotEmpty()
   @IsString()
-  @Length(1, 8)
+  @Length(1, 20)
   type: string;
 
   @ManyToMany((type) => Permission)
