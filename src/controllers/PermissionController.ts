@@ -11,6 +11,12 @@ class PermissionController {
     res.status(200).send(permissions);
   }
 
+  static list = async (req: Request, res: Response) => {
+    const permissionService = Container.get(PermissionService);
+    const permissions = await permissionService.listAll();
+    res.status(200).send(permissions);
+  }
+
   static store = async (req: Request, res: Response) => {
     const permissionService = Container.get(PermissionService);
     const { name }: { name: string } = req.body;
