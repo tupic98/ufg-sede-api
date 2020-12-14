@@ -6,7 +6,7 @@ import {
   OneToOne,
   JoinColumn,
 } from 'typeorm';
-import { Length, IsNotEmptyObject } from 'class-validator';
+import { Length, IsNotEmptyObject, IsOptional } from 'class-validator';
 import * as bcrypt from 'bcryptjs';
 import { Subject } from './Subject';
 import { Role } from './Role';
@@ -17,8 +17,8 @@ export class User {
   @PrimaryGeneratedColumn({ name: 'user_id', type: 'int' })
   id: number;
 
-  @Column({ name: 'user_password', type: 'varchar', length: '30' })
-  @Length(4, 30)
+  @Column({ name: 'user_password', type: 'varchar', length: '200', select: false })
+  @Length(4, 200)
   password: string;
 
   @OneToOne((type) => Person, { cascade: ['insert'] })
@@ -39,7 +39,7 @@ export class User {
     (subject) => subject.users
   )
   @JoinColumn({ name: 'subject_id' })
-  @IsNotEmptyObject()
+  @IsOptional()
   subject: Subject;
 
   async hashPassword() {

@@ -11,8 +11,15 @@ import { Container } from "typedi";
 class UserController {
   static fetch = async (req: Request, res: Response) => {
     const userService = Container.get(UserService);
-    //Get users from database
     const users = await userService.findAll();
+    users.data = (users.data as User[]).map((user) => {
+      const { person, ...rest } = user;
+      return {
+        ...rest,
+        ...person,
+        id: rest.id,
+      }
+    })
     res.status(200).send(users);
   };
 
@@ -22,12 +29,17 @@ class UserController {
     const id: number = Number(req.params.id);
 
     //Get the user from database
-      const user = await userService.findById(id);
+      const user = await userService.findByIdWithRelations(id);
       if (!user) {
         res.status(404).json({ message: 'Usuario no encontrado '});
         return;
       }
-      res.status(200).send(user);
+      const { person, ...rest } = user;
+      res.status(200).send({
+        ...rest,
+        ...person,
+        id: rest.id,
+      });
   };
 
   static store = async (req: Request, res: Response) => {
@@ -77,10 +89,13 @@ class UserController {
     }
 
     //Getting subject information
-    const subject = await subjectService.findById(subjectId);
-    if (!subject) {
-      res.status(400).json({ message: 'La materia que intenta asignar no existe' });
-      return;
+    let subject;
+    if (subjectId !== 0) {
+      subject = await subjectService.findById(subjectId);
+      if (!subject) {
+        res.status(400).json({ message: 'La materia que intenta asignar no existe' });
+        return;
+      }
     }
     //Setting person information
     const person = new Person();
@@ -88,29 +103,31 @@ class UserController {
     person.firstName = firstName;
     person.lastName = lastName;
     person.status = status;
-    person.email = email;
-    person.phoneNumber = phoneNumber;
-    person.altPhoneNumber = altPhoneNumber;
+    person.email = email ? email : null;
+    person.phoneNumber = phoneNumber ? phoneNumber : null;
+    person.altPhoneNumber = altPhoneNumber ? phoneNumber : null;
     person.sede = sede;
 
     //Validate person entity
     const personErrors = await validate(person);
 
     if (personErrors.length > 0) {
-      res.status(400).send(personErrors);
+      res.status(400).json({ message: 'No se pudo crear el usuario', error: personErrors });
       return;
     }
 
     const user = new User();
     user.password = password;
-    user.subject = subject;
+    if (subject) {
+      user.subject = subject;
+    }
     user.person = person;
     user.role = role;
 
     //Validate if the parameters are ok
     const errors = await validate(user);
     if (errors.length > 0) {
-      res.status(400).send(errors);
+      res.status(400).json({ message: 'No se pudo crear el usuario', error: errors });
       return;
     }
 
@@ -120,12 +137,12 @@ class UserController {
     try {
       await userService.create(user);
     } catch (error) {
-      res.status(400).json({ message: 'No se pudo crear el usuario' });
+      res.status(400).json({ message: 'No se pudo crear el usuario', error });
       return;
     }
 
     //If everything is ok, send 201 response
-    res.status(201).send('Usuario creado correctamente');
+    res.status(201).json({ message: 'Usuario creado correctamente' });
   };
 
   static update = async (req: Request, res: Response) => {

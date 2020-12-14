@@ -8,6 +8,7 @@ import { GradeService } from "../services/GradeService";
 import { Person } from "../entities/Person";
 import { validate } from "class-validator";
 import { Container } from "typedi";
+import { PersonService } from "../services/PersonService";
 
 class StudentController {
   static fetch = async (req: Request, res: Response) => {
@@ -45,7 +46,7 @@ class StudentController {
       modalityId,
       sectionId,
       gradeId,
-      
+
     }: {
       year: number,
       report: string,
@@ -265,6 +266,77 @@ class StudentController {
     res.status(204).send();
   }
 
+  static updateContact = async (req: Request, res: Response) => {
+    const studentService = Container.get(StudentService);
+    const personService = Container.get(PersonService);
+    const studentId = res.locals.jwtPayload.studentId;
+    const { phoneNumber, email, altPhoneNumber }: { phoneNumber: string, email: string, altPhoneNumber: string } = req.body;
+
+    const student = await studentService.findByIdWithRelation(studentId);
+    if (!student) {
+      res.status(404).json({ message: 'Estudiante no encontrado' });
+      return;
+    }
+
+    const person = await personService.findByIdWithRelation(student.person.id);
+    if (!person) {
+      res.status(404).json({ message: 'Estudiante no encontrado '});
+      return;
+    }
+
+    person.phoneNumber = phoneNumber ? phoneNumber : null;
+    person.email = email ? email : null;
+    person.altPhoneNumber = altPhoneNumber ? altPhoneNumber : null;
+
+    const personErrors = await validate(student.person);
+
+    if (personErrors.length > 0) {
+      res.status(400).send(personErrors);
+      return;
+    }
+
+    console.log('Person: ', person);
+    console.log('Student: ', student);
+
+    student.person = person;
+    student.firstTime = false;
+
+    const studentErrors = await validate(student);
+    if (studentErrors.length > 0) {
+      res.status(400).send(studentErrors);
+      return;
+    }
+
+    try {
+      await personService.update(person);
+      await studentService.update(student);
+    } catch (error) {
+      res.status(400).json({ message: 'No se pudo actualizar el contacto del estudiante', error })
+      return;
+    }
+
+    res.status(200).json({ message: 'Contacto de estudiante actualizado correctamente' });
+  }
+
+  static me = async (req: Request, res: Response) => {
+    const studentService = Container.get(StudentService);
+    const code = res.locals.jwtPayload.code;
+
+    const student = await studentService.findByCode(code);
+    if (!student) {
+      res.status(404).json({ message: 'Estudiante no encontrado' });
+      return;
+    }
+
+    const { person, ...rest } = student;
+
+    res.status(200).send({
+      ...rest,
+      ...person,
+      id: rest.id,
+    });
+  }
+
   static showByCode = async (req: Request, res: Response) => {
     const studentService = Container.get(StudentService);
     const code = res.locals.jwtPayload.code;
@@ -285,6 +357,7 @@ class StudentController {
         }
         const { module, ...res } = q;
         modules[q.module.moduleNumber].push({
+          module: q.module.moduleNumber,
           subject: s.subject.name,
           ...res,
         })
@@ -294,6 +367,7 @@ class StudentController {
     const studentData = {
       ...rest,
       ...person,
+      id: rest.id,
       modality: rest.modality.type,
       section: rest.section.name,
       grade: rest.grade.grade,

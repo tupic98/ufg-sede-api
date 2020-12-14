@@ -12,6 +12,12 @@ class SubjectController {
     res.status(200).send(subjects);
   }
 
+  static list = async (req: Request, res: Response) => {
+    const subjectService = Container.get(SubjectService);
+    const subjects = await subjectService.listAll();
+    res.status(200).send(subjects);
+  }
+
   static store = async (req: Request, res: Response) => {
     const gradeService = Container.get(GradeService);
     const subjectService = Container.get(SubjectService);

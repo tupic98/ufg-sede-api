@@ -21,6 +21,12 @@ export class SedeService {
       .paginate(10);
   }
 
+  public async listAll(): Promise<Sede[]> {
+    return await this.sedeRepository
+        .createQueryBuilder('sede')
+        .getMany()
+  }
+
   public async create(sede: Sede): Promise<Sede> {
     return await this.sedeRepository.save(sede);
   }

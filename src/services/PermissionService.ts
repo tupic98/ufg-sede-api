@@ -26,6 +26,12 @@ export class PermissionService {
       .getOne();
   }
 
+  public async listAll(): Promise<Permission[]> {
+    return await this.permissionRepository
+        .createQueryBuilder('permission')
+        .getMany();
+  }
+
   public async findAll(): Promise<PaginationAwareObject> {
     return await this.permissionRepository
       .createQueryBuilder('permission')
@@ -34,7 +40,7 @@ export class PermissionService {
 
   public async create(permission: Permission): Promise<Permission> {
     return await this.permissionRepository.save(permission);
-  } 
+  }
 
   public async update(newPermission: Permission): Promise<UpdateResult> {
     return await this.permissionRepository.update(newPermission.id, newPermission);

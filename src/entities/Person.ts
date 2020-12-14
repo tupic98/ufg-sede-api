@@ -30,18 +30,18 @@ export class Person {
   @Column({ name: 'person_phoneNumber', type: 'varchar', length: '8', nullable: true })
   @IsOptional()
   @Length(8, 8)
-  phoneNumber: string;
+  phoneNumber: string | null;
 
   @Column({ name: 'person_email', type: 'varchar', length: '60', nullable: true })
   @IsOptional()
   @MaxLength(60)
   @IsEmail()
-  email: string;
+  email: string | null;
 
   @Column({ name: 'person_altPhoneNumber', type: 'varchar', length: '8', nullable: true })
   @IsOptional()
   @Length(8, 8)
-  altPhoneNumber: string;
+  altPhoneNumber: string | null;
 
   @Column({ name: 'person_status', type: 'boolean', default: 'true' })
   @IsNotEmpty()

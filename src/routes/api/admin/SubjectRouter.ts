@@ -6,6 +6,7 @@ const router: Router = Router();
 //TODO: implement role and permission middleware
 router.post('/', SubjectController.store);
 router.get('/', SubjectController.fetch);
+router.get('/list', SubjectController.list);
 router.get('/:id', SubjectController.show);
 router.put('/:id', SubjectController.update);
 router.delete('/:id', SubjectController.destroy);

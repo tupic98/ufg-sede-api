@@ -21,6 +21,12 @@ export class ModuleService {
       .paginate(10);
   }
 
+  public async listAll(): Promise<Module[]> {
+    return await this.moduleRepository
+        .createQueryBuilder('module')
+        .getMany()
+  }
+
   public async create(module: Module): Promise<Module> {
     return await this.moduleRepository.save(module);
   }
