@@ -1,4 +1,4 @@
-import { DeleteResult, Repository, UpdateResult } from 'typeorm';
+import { DeleteResult, Repository } from 'typeorm';
 import { Role } from '../entities/Role';
 import { InjectRepository } from "typeorm-typedi-extensions";
 import { Service } from "typedi";
@@ -42,8 +42,8 @@ export class RoleService {
     return await this.roleRepository.save(role);
   }
 
-  public async update(newRole: Role): Promise<UpdateResult> {
-    return await this.roleRepository.update(newRole.id, newRole);
+  public async update(newRole: Role): Promise<Role> {
+    return await this.roleRepository.save(newRole);
   }
 
   public async delete(id: number): Promise<DeleteResult> {

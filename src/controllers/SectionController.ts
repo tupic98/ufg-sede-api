@@ -11,6 +11,12 @@ class SectionController {
     res.status(200).send(sections);
   }
 
+  static list = async (req: Request, res: Response) => {
+    const sectionService = Container.get(SectionService);
+    const sections = await sectionService.listAll();
+    res.status(200).send(sections);
+  }
+
   static store = async (req: Request, res: Response) => {
     const sectionService = Container.get(SectionService);
     const { name }: { name: string } = req.body;
@@ -77,7 +83,7 @@ class SectionController {
   static destroy = async (req: Request, res: Response) => {
     const sectionService = Container.get(SectionService);
     const id: number = +req.params.id;
-    
+
     const section = await sectionService.findById(id);
     if (!section) {
       res.status(404).json({ message: 'Sección no encontrada' });

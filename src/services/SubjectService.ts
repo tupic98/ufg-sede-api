@@ -47,6 +47,15 @@ export class SubjectService {
         .getMany();
   }
 
+  public async listAllByGrade(id: number): Promise<Subject[]> {
+    return await this.subjectRepository
+        .createQueryBuilder('subject')
+        .innerJoin('subject.grade', 'grade')
+        .where('grade.id = :id', { id })
+        .orderBy('subject.id', 'ASC')
+        .getMany();
+  }
+
   public async create(subject: Subject): Promise<Subject> {
     return await this.subjectRepository.save(subject);
   }

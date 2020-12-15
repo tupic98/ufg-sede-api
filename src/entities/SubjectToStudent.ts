@@ -17,16 +17,17 @@ export class SubjectToStudent {
     @ManyToOne(
         (type) => Student,
         (student) => student.subjectQualifications
+        , { onDelete: 'CASCADE' }
     )
-    @JoinColumn({ name: 'student_id' })
+    @JoinColumn({ name: 'student_id'})
     @IsNotEmptyObject()
     student: Student;
-    
+
     @ManyToOne(
         (type) => Subject,
         (subject) => subject.studentQualifications
     )
-    @JoinColumn({ name: 'subject_id ' })
+    @JoinColumn({ name: 'subject_id' })
     @IsNotEmptyObject()
     subject: Subject;
 

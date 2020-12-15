@@ -60,6 +60,22 @@ export class StudentService {
       .getOne();
   }
 
+  public async findByIdWithNotesRelations(id: number): Promise<Student | undefined> {
+    return await this.studentRepository
+        .createQueryBuilder('student')
+        .where('student.id = :id', { id })
+        .leftJoinAndSelect('student.person', 'person')
+        .leftJoinAndSelect('person.sede', 'sede')
+        .leftJoinAndSelect('student.modality', 'modality')
+        .leftJoinAndSelect('student.section', 'section')
+        .leftJoinAndSelect('student.grade', 'grade')
+        .leftJoinAndSelect('student.subjectQualifications', 'subjectQualifications')
+        .leftJoinAndSelect('subjectQualifications.subject', 'subject')
+        .leftJoinAndSelect('subjectQualifications.qualifications', 'qualifications')
+        .leftJoinAndSelect('qualifications.module', 'module')
+        .getOne();
+  }
+
   public async findAll(): Promise<PaginationAwareObject> {
     return await this.studentRepository
       .createQueryBuilder('student')

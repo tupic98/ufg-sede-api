@@ -9,6 +9,7 @@ import ModuleRouter from './admin/ModuleRouter';
 import StudentRouter from './admin/StudentRouter';
 import RoleRouter from './admin/RoleRouter';
 import PermissionsRouter from './admin/PermissionsRouter';
+import SectionRouter from './admin/SectionRouter';
 
 const router: Router = Router();
 
@@ -22,5 +23,6 @@ router.use('/module', ModuleRouter);
 router.use('/students', StudentRouter);
 router.use('/roles', RoleRouter);
 router.use('/permissions', PermissionsRouter);
+router.use('/sections', SectionRouter);
 
 export default router;

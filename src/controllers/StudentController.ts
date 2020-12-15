@@ -9,6 +9,14 @@ import { Person } from "../entities/Person";
 import { validate } from "class-validator";
 import { Container } from "typedi";
 import { PersonService } from "../services/PersonService";
+import { SubjectService } from '../services/SubjectService';
+import { Subject } from '../entities/Subject';
+import { SubjectToStudent } from '../entities/SubjectToStudent';
+import { SubjectToStudentService } from '../services/SubjectToStudentService';
+import { ModuleService } from '../services/ModuleService';
+import { QualificationService } from '../services/QualificationService';
+import { Qualification } from '../entities/Qualification';
+import { UserService } from '../services/UserService';
 
 class StudentController {
   static fetch = async (req: Request, res: Response) => {
@@ -35,12 +43,16 @@ class StudentController {
     const studentService = Container.get(StudentService);
     const modalityService = Container.get(ModalityService);
     const sectionService = Container.get(SectionService);
+    const subjectService = Container.get(SubjectService);
+    const subjectToStudentService = Container.get(SubjectToStudentService);
+    const moduleService = Container.get(ModuleService);
+    const qualificationService = Container.get(QualificationService);
     const {
       year,
       report,
-      firstTime,
       firstName,
       lastName,
+      code,
       status,
       sedeId,
       modalityId,
@@ -48,9 +60,9 @@ class StudentController {
       gradeId,
 
     }: {
+      code: string,
       year: number,
       report: string,
-      firstTime: boolean,
       firstName: string,
       lastName: string,
       status: boolean,
@@ -88,6 +100,14 @@ class StudentController {
       return;
     }
 
+    let subjects: Subject[];
+    try {
+      subjects = await subjectService.listAllByGrade(gradeId);
+    } catch (e) {
+      res.status(500).json({ message: 'Error asignando materias', errors: e });
+      return;
+    }
+
     //Getting subjects information
     let userCode = '';
     firstName.split(' ').forEach((name: string) => {
@@ -115,12 +135,13 @@ class StudentController {
 
     const student = new Student();
 
-    student.code = `${sede.code.toUpperCase()}${userCode}`
+    student.approved = false;
+    student.code = code;
     student.grade = grade;
     student.section = section;
     student.modality = modality;
     student.person = person;
-    student.firstTime = firstTime;
+    student.firstTime = true;
     student.report = report;
     student.year = year;
 
@@ -130,8 +151,52 @@ class StudentController {
       return;
     }
 
+    const subjectToStudents: SubjectToStudent[] = [];
+    const modules = await moduleService.listAll();
+    let qualifications: Qualification[] = [];
+
+
+    subjects.forEach((subject) => {
+      console.log('Subject: ', subject);
+      const subjectToStudent = new SubjectToStudent();
+      subjectToStudent.student = student;
+      subjectToStudent.subject = subject;
+      subjectToStudent.student_code = student.code;
+      subjectToStudents.push(subjectToStudent);
+      modules.forEach((module) => {
+        console.log('Module: ', module);
+        if (subject.isExternalTest && +module.moduleNumber === 6984) {
+          const qualification = new Qualification();
+          qualification.approved = false;
+          qualification.recoverEnabled = false;
+          qualification.isExternalTest = true;
+          qualification.subjectStudent = subjectToStudent;
+          qualification.module = module;
+          qualifications.push(qualification);
+        } else if (!subject.isExternalTest && +module.moduleNumber !== 6984) {
+          const qualification = new Qualification();
+          qualification.approved = false;
+          qualification.recoverEnabled = false;
+          qualification.isExternalTest = false;
+          qualification.subjectStudent = subjectToStudent;
+          qualification.module = module;
+        }
+      })
+    })
+
     try {
       await studentService.create(student);
+      try {
+        await subjectToStudentService.createVarious(subjectToStudents);
+      } catch (e) {
+        res.status(400).json({ message: 'Error asignando materias '});
+        return;
+      }
+      try {
+        await qualificationService.createVarious(qualifications);
+      } catch (e) {
+        res.status(400).json({ message: 'Error asignando calificaciones' });
+      }
     } catch (error) {
       res.status(400).json({ message: 'No se pudo crear el estudiante '})
       return;
@@ -352,12 +417,14 @@ class StudentController {
 
     subjectQualifications.map((s) => {
       s.qualifications.map((q) => {
+        const moduleName = +q.module.moduleNumber === 6984 ? 'externalTest' : q.module.moduleNumber;
         if (!modules[q.module.moduleNumber]) {
-          Reflect.set(modules, q.module.moduleNumber, []);
+          Reflect.set(modules, moduleName, []);
         }
         const { module, ...res } = q;
-        modules[q.module.moduleNumber].push({
-          module: q.module.moduleNumber,
+
+        modules[moduleName].push({
+          module: moduleName,
           subject: s.subject.name,
           ...res,
         })
@@ -378,6 +445,157 @@ class StudentController {
       modules,
     });
   }
+
+  static assignNewSubject = async (req: Request, res: Response) => {
+    const studentService = Container.get(StudentService);
+    const subjectToStudentService = Container.get(SubjectToStudentService);
+    const qualificationService = Container.get(QualificationService);
+    const moduleService = Container.get(ModuleService);
+    const subjectService = Container.get(SubjectService);
+    const id: number = Number(req.params.id);
+    const { subjectId }: { subjectId: number } = req.body;
+
+    const student = await studentService.findById(id);
+    if (!student) {
+      res.status(404).json({ message: 'Estudiante no encontrado' });
+      return
+    }
+
+    const subject = await subjectService.findById(subjectId);
+    if (!subject) {
+      res.status(404).json({ message: 'Materia no encontrada' });
+      return
+    }
+
+    const subjectToStudent = new SubjectToStudent();
+    subjectToStudent.student = student;
+    subjectToStudent.student_code = student.code;
+    subjectToStudent.subject = subject;
+
+    const modules = await moduleService.listAll();
+    let qualifications: Qualification[] = [];
+    modules.forEach((module) => {
+      if (subject.isExternalTest && +module.moduleNumber === 6984) {
+        const qualification = new Qualification();
+        qualification.approved = false;
+        qualification.recoverEnabled = false;
+        qualification.isExternalTest = true;
+        qualification.subjectStudent = subjectToStudent;
+        qualification.module = module;
+        qualifications.push(qualification);
+      } else if (!subject.isExternalTest && +module.moduleNumber !== 6984) {
+        const qualification = new Qualification();
+        qualification.approved = false;
+        qualification.recoverEnabled = false;
+        qualification.isExternalTest = false;
+        qualification.subjectStudent = subjectToStudent;
+        qualification.module = module;
+      }
+    })
+    try {
+      await subjectToStudentService.create(subjectToStudent);
+      await qualificationService.createVarious(qualifications);
+      res.status(200).json({ message: 'Materia asignada correctamente' });
+    } catch (e) {
+      res.status(400).json({ message: 'No se pudo asignar la materia', e });
+    }
+  }
+
+  static fetchNotes = async (req: Request, res: Response) => {
+    const studentService = Container.get(StudentService);
+
+    const id: number = Number(req.params.id);
+
+    const student = await studentService.findByIdWithNotesRelations(id);
+    if (!student) {
+      res.status(404).json({ message: 'Estudiante no encontrado' });
+      return;
+    }
+    // @ts-ignore
+    const { subjectQualifications, person, ...rest } = student;
+
+    const modules = {}
+
+    subjectQualifications.map((s) => {
+      s.qualifications.map((q) => {
+        const moduleName = +q.module.moduleNumber === 6984 ? 'externalTest' : q.module.moduleNumber;
+        if (!modules[q.module.moduleNumber]) {
+          Reflect.set(modules, moduleName, []);
+        }
+        const { module, ...res } = q;
+
+        modules[moduleName].push({
+          module: moduleName,
+          subject: s.subject.name,
+          ...res,
+        })
+      })
+    })
+
+    res.status(200).send({
+      ...modules,
+    });
+  }
+
+  static saveNotes = async (req: Request, res: Response) => {
+    const qualificationService = Container.get(QualificationService);
+    const userService = Container.get(UserService);
+    // const id: number = Number(req.params.id);
+    const { qualificationId, userId, note, recoveryLink, recoveryEnabled }: { qualificationId: number, userId: number, note: number, recoveryLink: string, recoveryEnabled: boolean } = req.body;
+
+    const user = await userService.findByIdWithRelations(+userId);
+
+    const qualification = await qualificationService.findById(qualificationId);
+    if (!qualification) {
+      res.status(400).json({ message: 'Error al actualizar la nota', error: 'Qualification not found' });
+      return;
+    }
+
+    qualification.note = note;
+    qualification.approved = +note >= 6.0;
+    if (recoveryLink) {
+      qualification.recoverLink = recoveryLink;
+    }
+    qualification.recoverEnabled = recoveryEnabled ?? false;
+    if (user) {
+      qualification.updatedBy = `${user.person.firstName} ${user.person.lastName}`
+    }
+
+    try {
+      await qualificationService.update(qualification);
+    } catch (e) {
+      res.status(400).json({ message: 'No se pudo actualizar la nota' });
+      return;
+    }
+
+    res.status(200).json({ message: 'Nota actualizada correctamente' });
+  }
+
+  static subjects = async (req: Request, res: Response) => {
+    const studentService = Container.get(StudentService);
+    const subjectService = Container.get(SubjectService);
+    const id: number = Number(req.params.id);
+
+    const student = await studentService.findByIdWithRelation(id);
+    if (!student) {
+      res.status(404).json({ message: 'Estudiante no encontrado '});
+      return;
+    }
+
+    const gradeId = student.grade.id;
+
+    let subjects: Subject[];
+    try {
+      subjects = await subjectService.listAllByGrade(gradeId);
+      res.status(200).send(subjects);
+      return;
+    } catch (e) {
+      res.status(500).json({ message: 'Error obteniendo las materias', errors: e });
+      return;
+    }
+  }
+
+  static publish
 }
 
 export default StudentController;

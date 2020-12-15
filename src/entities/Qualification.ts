@@ -21,8 +21,9 @@ export class Qualification {
     type: 'numeric',
     precision: 4,
     scale: 2,
+    nullable: true
   })
-  @IsNotEmpty()
+  @IsOptional()
   @IsNumber()
   note: number;
 
@@ -31,7 +32,7 @@ export class Qualification {
   @IsBoolean()
   approved: boolean;
 
-  @Column({ name: 'qualification_recoverLink', type: 'text' })
+  @Column({ name: 'qualification_recoverLink', type: 'text', nullable: true })
   @IsOptional()
   @IsString()
   recoverLink: string;
@@ -46,7 +47,7 @@ export class Qualification {
   @IsBoolean()
   isExternalTest: boolean;
 
-  @Column({ name: 'qualification_updatedBy', type: 'text' })
+  @Column({ name: 'qualification_updatedBy', type: 'text', nullable: true })
   @IsOptional()
   @IsString()
   updatedBy: string;

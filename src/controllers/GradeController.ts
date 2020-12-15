@@ -11,6 +11,12 @@ class GradeController {
     res.status(200).send(grades);
   }
 
+  static list = async (req: Request, res: Response) => {
+    const gradeService = Container.get(GradeService);
+    const grades = await gradeService.listAll();
+    res.status(200).send(grades);
+  }
+
   static store = async (req: Request, res: Response) => {
     const gradeService = Container.get(GradeService);
     const {
