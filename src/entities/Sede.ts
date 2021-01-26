@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString, IsOptional } from 'class-validator';
+import { IsNotEmpty, IsString, IsOptional, IsBoolean } from 'class-validator';
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { Person } from './Person';
 
@@ -26,6 +26,11 @@ export class Sede {
   @IsOptional()
   @IsString()
   address: string;
+
+  @Column({ name: 'sede_active', type: 'boolean', default: false })
+  @IsNotEmpty()
+  @IsBoolean()
+  active: boolean;
 
   @OneToMany(
     (type) => Person,

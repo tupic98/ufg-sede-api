@@ -27,7 +27,14 @@ export class SectionService {
     return await this.sectionRepository
       .createQueryBuilder('section')
       .leftJoinAndSelect('section.students', 'students')
+      .orderBy('section.name', 'ASC')
       .paginate(10);
+  }
+
+  public async listAll(): Promise<Section[]> {
+    return await this.sectionRepository
+        .createQueryBuilder('section')
+        .getMany();
   }
 
   public async create(section: Section): Promise<Section> {

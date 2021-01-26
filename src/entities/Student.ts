@@ -24,7 +24,7 @@ export class Student {
   @IsNumber()
   year: number;
 
-  @Column({ name: 'student_report', type: 'text' })
+  @Column({ name: 'student_report', type: 'text', nullable: true })
   @IsOptional()
   @IsString()
   report: string;
@@ -66,7 +66,7 @@ export class Student {
   @IsBoolean()
   firstTime: boolean;
 
-  @OneToOne((type) => Person, { cascade: ['insert'] })
+  @OneToOne((type) => Person, { cascade: ['insert'], onDelete: 'CASCADE' })
   @JoinColumn({ name: 'person_id' })
   @IsNotEmptyObject()
   person: Person;

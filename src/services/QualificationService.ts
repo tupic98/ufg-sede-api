@@ -1,7 +1,7 @@
 import { Service } from "typedi";
 import { InjectRepository } from "typeorm-typedi-extensions";
 import { Qualification } from "../entities/Qualification";
-import { DeleteResult, Repository } from "typeorm";
+import { DeleteResult, InsertResult, Repository, UpdateResult } from "typeorm";
 import { PaginationAwareObject } from "typeorm-pagination/dist/helpers/pagination";
 
 @Service()
@@ -24,6 +24,15 @@ export class QualificationService {
     return await this.qualificationRepository.findOneOrFail(id)
   }
 
+  public async findByIdWithRelations(id: number): Promise<Qualification | undefined> {
+    return await this.qualificationRepository
+        .createQueryBuilder('qualification')
+        .leftJoinAndSelect('qualification.subjectStudent', 'qualification.subjectStudent')
+        .leftJoinAndSelect('qualification.module', 'module')
+        .where('qualification.id = :id', { id })
+        .getOne()
+  }
+
   public async findByIds(ids: Array<number>): Promise<Qualification[]> {
     return await this.qualificationRepository.findByIds(ids);
   }
@@ -36,20 +45,20 @@ export class QualificationService {
       .paginate(10);
   }
 
-  public async update(newQualification: Qualification): Promise<Qualification | undefined> {
-    const qualification = await this.qualificationRepository.findOneOrFail(newQualification);
-    if (!qualification.id) {
-      return new Promise((resolve, reject) => {
-        setTimeout(function () {
-          reject({
-            statusCode: 404,
-            error: 'Qualification not found',
-          })
-        }, 250);
-      });
-    }
-    await this.qualificationRepository.update(newQualification.id, newQualification);
-    return await this.qualificationRepository.findOne(newQualification.id);
+  public async create(qualification: Qualification): Promise<Qualification> {
+    return await this.qualificationRepository.save(qualification);
+  }
+
+  public async createVarious(qualifications: Qualification[]): Promise<InsertResult> {
+    return await this.qualificationRepository.createQueryBuilder('qualification')
+        .insert()
+        .into(Qualification)
+        .values(qualifications)
+        .execute();
+  }
+
+  public async update(newQualification: Qualification): Promise<UpdateResult> {
+    return await this.qualificationRepository.update(newQualification.id, newQualification);
   }
 
   public async delete(id: number): Promise<DeleteResult> {

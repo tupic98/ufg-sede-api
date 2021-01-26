@@ -24,6 +24,12 @@ export class GradeService {
       .getOne();
   }
 
+  public async listAll(): Promise<Grade[]> {
+    return await this.gradeRepository
+        .createQueryBuilder('grade')
+        .getMany()
+  }
+
   public async findAll(): Promise<PaginationAwareObject> {
     return await this.gradeRepository
       .createQueryBuilder('grade')

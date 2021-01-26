@@ -66,17 +66,22 @@ class RoleController {
 
     const { name, type, permissionId }: { name: string, type: string, permissionId: Array<number> } = req.body;
 
-    const role = await roleService.findById(id);
+    const role = await roleService.findByIdWithRelations(id);
     if (!role) {
       res.status(404).json({ message: 'Rol no encontrado' })
       return;
     }
+
+    console.log('Role: ', role);
+    console.log('Role Permission: ', role.permissions);
 
     const permissions = await permissionService.findByIds(permissionId);
     if (type === 'tutor' && (!permissions || permissions.length <= 0)) {
       res.status(400).json({ message: 'No se puede asiginar un rol sin permisos '});
       return;
     }
+
+    console.log('New permissions: ', permissions);
 
     role.name = name;
     role.type = type;
@@ -89,7 +94,7 @@ class RoleController {
     }
 
     try {
-        await roleService.update(role);
+      await roleService.update(role);
     } catch (e) {
       res.status(400).json({ message: 'No se pudo actualizar el rol '});
       return;

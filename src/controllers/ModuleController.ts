@@ -12,8 +12,12 @@ class ModuleController {
   }
 
   static list = async (req: Request, res: Response) => {
+    const external: boolean = Boolean(req.query.external);
     const moduleService = Container.get(ModuleService);
-    const modules = await moduleService.listAll();
+    let modules = await moduleService.listAll();
+    if (!external) {
+      modules = modules.filter((module) => +module.moduleNumber !== 6984);
+    }
     res.status(200).send(modules);
   }
 
