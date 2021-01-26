@@ -556,7 +556,7 @@ class StudentController {
     if (recoveryLink) {
       qualification.recoverLink = recoveryLink;
     }
-    qualification.recoverEnabled = recoveryEnabled ?? false;
+    qualification.recoverEnabled = recoveryEnabled ? recoveryEnabled : false;
     if (user) {
       qualification.updatedBy = `${user.person.firstName} ${user.person.lastName}`
     }
