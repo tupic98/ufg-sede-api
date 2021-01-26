@@ -17,6 +17,7 @@ import { ModuleService } from '../services/ModuleService';
 import { QualificationService } from '../services/QualificationService';
 import { Qualification } from '../entities/Qualification';
 import { UserService } from '../services/UserService';
+import transporter from '../providers/nodemailer';
 
 class StudentController {
   static fetch = async (req: Request, res: Response) => {
@@ -595,7 +596,251 @@ class StudentController {
     }
   }
 
-  static publish
+  static studentInformation = async (req: Request, res: Response) => {
+    const {
+      sedeCode,
+      centerCode,
+      sedeName,
+      studentFirstName,
+      studentLastName,
+      studentGender,
+      studentBirthdate,
+      studentDUI,
+      studentNIE,
+      studentGenderIdentity,
+      studentNationality,
+      studentMaritalStatus,
+      studentTransport,
+      studentDistance,
+      studentJobStatus,
+      studentOccupation,
+      studentDiscapacity,
+      studentDeported,
+      studentAddress,
+      studentResidenceType,
+      studentResidencePhoneNumber,
+      studentPhoneNumber,
+      studentWorkPhoneNumber,
+      studentEmail,
+      familyMembersQuantity,
+      livingWith,
+      economicallyDependsFrom,
+      hasChild,
+      lastTakenGrade,
+      lastTakenGradeYear,
+      takenInstitutionType,
+      institutionCode,
+      takenInstitution,
+    }: {
+        sedeCode: string;
+        centerCode: string;
+        sedeName: string;
+        studentFirstName: string;
+        studentLastName: string;
+        studentGender: string;
+        studentBirthdate: string;
+        studentDUI: string;
+        studentNIE: string;
+        studentGenderIdentity: string;
+        studentNationality: string;
+        studentMaritalStatus: string;
+        studentTransport: string;
+        studentDistance: string;
+        studentJobStatus: string;
+        studentOccupation: string;
+        studentDiscapacity: string;
+        studentDeported: string;
+        studentAddress: string;
+        studentResidenceType: string;
+        studentResidencePhoneNumber: string;
+        studentPhoneNumber: string;
+        studentWorkPhoneNumber: string;
+        studentEmail: string;
+        familyMembersQuantity: string;
+        livingWith: string;
+        economicallyDependsFrom: string;
+        hasChild: string;
+        lastTakenGrade: string;
+        lastTakenGradeYear: string;
+        takenInstitutionType: string;
+        institutionCode: string;
+        takenInstitution: string;
+      } = req.body;
+    
+    const html = `
+      <h1>
+        Reserva de matricula ${studentFirstName} ${studentLastName || ''}
+      </h1> <br>
+      <h2>Datos de sede</h2>
+      <table style="border: none">
+        <tr>
+          <td> <h3> Código de centro: </h3> </td>
+          <td> ${centerCode || '-'} </td>
+        </tr>
+        <tr>
+          <td> <h3> Código de sede: </h3> </td>
+          <td> ${sedeCode || '-'} </td>
+        </tr>
+        <tr>
+          <td> <h3> Nombre de la sede: </h3> </td>
+          <td> ${sedeName || '-'} </td>
+        </tr>
+      </table>
+      <br>
+      <h2>Datos personales</h2>
+      <table style="border: none">
+        <tr>
+          <td> <h3> Nombres: </h3> </td>
+          <td> ${studentFirstName || '-'} </td>
+        </tr>
+        <tr>
+          <td> <h3> Apellidos: </h3> </td>
+          <td> ${studentLastName || '-'} </td>
+        </tr>
+        <tr>
+          <td> <h3> Sexo: </h3> </td>
+          <td> ${studentGender || '-'} </td>
+        </tr>
+        <tr>
+          <td> <h3> Fecha de nacimiento: </h3> </td>
+          <td> ${studentBirthdate || '-'} </td>
+        </tr>
+        <tr>
+          <td> <h3> Número de DUI: </h3> </td>
+          <td> ${studentDUI || '-'} </td>
+        </tr>
+        <tr>
+          <td> <h3> Número de NIE: </h3> </td>
+          <td> ${studentNIE || '-'} </td>
+        </tr>
+        <tr>
+          <td> <h3> Identidad de género: </h3> </td>
+          <td> ${studentGenderIdentity || '-'} </td>
+        </tr>
+        <tr>
+          <td> <h3> Nacionalidad: </h3> </td>
+          <td> ${studentNationality || '-'} </td>
+        </tr>
+        <tr>
+          <td> <h3> Estado Familiar: </h3> </td>
+          <td> ${studentMaritalStatus || '-'} </td>
+        </tr>
+        <tr>
+          <td> <h3> Medio de transporte: </h3> </td>
+          <td> ${studentTransport || '-'} </td>
+        </tr>
+        <tr>
+          <td> <h3> Distancia en kilometros para llegar al centro: </h3> </td>
+          <td> ${studentDistance || '-'} </td>
+        </tr>
+        <tr>
+          <td> <h3> Trabaja: </h3> </td>
+          <td> ${studentJobStatus || '-'} </td>
+        </tr>
+        <tr>
+          <td> <h3> Ocupación: </h3> </td>
+          <td> ${studentOccupation || '-'} </td>
+        </tr>
+        <tr>
+          <td> <h3> Discapacidad: </h3> </td>
+          <td> ${studentDiscapacity || '-'} </td>
+        </tr>
+        <tr>
+          <td> <h3> Retornado </h3> </td>
+          <td> ${studentDeported || '-'} </td>
+        </tr>
+      </table>
+      <br>
+      <h2>Datos de residencia</h2>
+      <table style="border: none">
+        <tr>
+          <td> <h3> Dirección: </h3> </td>
+          <td> ${studentAddress || '-'} </td>
+        </tr>
+        <tr>
+          <td> <h3> Zona de residencia: </h3> </td>
+          <td> ${studentResidenceType || '-'} </td>
+        </tr>
+        <tr>
+          <td> <h3> Teléfono de residencia: </h3> </td>
+          <td> ${studentResidencePhoneNumber || '-'} </td>
+        </tr>
+        <tr>
+          <td> <h3> Teléfono celular: </h3> </td>
+          <td> ${studentPhoneNumber || '-'} </td>
+        </tr>
+        <tr>
+          <td> <h3> Teléfono de trabajo: </h3> </td>
+          <td> ${studentWorkPhoneNumber || '-'} </td>
+        </tr>
+        <tr>
+          <td> <h3> Correo Electrónico: </h3> </td>
+          <td> ${studentEmail || '-'} </td>
+        </tr>
+      </table>
+      <br>
+      <h2>Datos sobre situación familiar</h2>
+      <table style="border: none">
+        <tr>
+          <td> <h3> Número de miembros de la familia: </h3> </td>
+          <td> ${familyMembersQuantity || '-'} </td>
+        </tr>
+        <tr>
+          <td> <h3> Convivencia: </h3> </td>
+          <td> ${livingWith || '-'} </td>
+        </tr>
+        <tr>
+          <td> <h3> De quien depende económicamente: </h3> </td>
+          <td> ${economicallyDependsFrom || '-'} </td>
+        </tr>
+        <tr>
+          <td> <h3> Tiene hijos: </h3> </td>
+          <td> ${hasChild || '-'} </td>
+        </tr>
+      </table>
+      <br>
+      <h2>Estudios realizados</h2>
+      <table style="border: none">
+        <tr>
+          <td> <h3> Último grado cursado: </h3> </td>
+          <td> ${lastTakenGrade || '-'} </td>
+        </tr>
+        <tr>
+          <td> <h3> Año en el que cursó su último grado: </h3> </td>
+          <td> ${lastTakenGradeYear || '-'} </td>
+        </tr>
+        <tr>
+          <td> <h3> Institución en donde lo cursó: </h3> </td>
+          <td> ${takenInstitutionType || '-'} </td>
+        </tr>
+        <tr>
+          <td> <h3> Código de la institución: </h3> </td>
+          <td> ${institutionCode || '-'} </td>
+        </tr>
+        <tr>
+          <td> <h3> Nombre del centro educativo: </h3> </td>
+          <td> ${takenInstitution || '-'} </td>
+        </tr>
+      </table>
+    `
+    
+    const mailOptions = {
+     from: process.env.MAIL_FROM_EMAIL,
+     to: process.env.MAIL_TO_EMAIL,
+     subject: `Reserva de matrícula - ${studentFirstName} ${studentLastName}`,
+     html,
+    };
+
+    transporter.sendMail(mailOptions, function(error, info) {
+      if (error) {
+        res.status(400).json(error);
+      } else {
+        res.status(200).json({
+          response: info.response,
+        })
+      }   
+    });
+  }
 }
 
 export default StudentController;
