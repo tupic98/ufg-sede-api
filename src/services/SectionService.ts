@@ -30,6 +30,12 @@ export class SectionService {
       .paginate(10);
   }
 
+  public async listAll(): Promise<Section[]> {
+    return await this.sectionRepository
+        .createQueryBuilder('section')
+        .getMany();
+  }
+
   public async create(section: Section): Promise<Section> {
     return await this.sectionRepository.save(section);
   }

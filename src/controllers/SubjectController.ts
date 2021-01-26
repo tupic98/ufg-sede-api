@@ -21,7 +21,7 @@ class SubjectController {
   static store = async (req: Request, res: Response) => {
     const gradeService = Container.get(GradeService);
     const subjectService = Container.get(SubjectService);
-    const { name, gradeId }: { name: string; gradeId: number } = req.body;
+    const { name, gradeId, externalTest }: { name: string; gradeId: number; externalTest: boolean } = req.body;
 
     //Getting grade information
     const grade = await gradeService.findById(gradeId);
@@ -33,6 +33,7 @@ class SubjectController {
     const subject = new Subject();
     subject.name = name;
     subject.grade = grade;
+    subject.isExternalTest = externalTest;
 
     const subjectErrors = await validate(subject);
     if (subjectErrors.length > 0) {
@@ -43,7 +44,7 @@ class SubjectController {
     try {
       await subjectService.create(subject);
     } catch (e) {
-      res.status(400).json({ message: 'No se pudo crear la materia ' });
+      res.status(400).json({ message: 'No se pudo crear la materia' });
       return;
     }
 

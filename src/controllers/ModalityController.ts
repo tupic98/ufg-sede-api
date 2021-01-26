@@ -11,6 +11,12 @@ class ModalityController {
     res.status(200).send(modalities);
   }
 
+  static list = async (req: Request, res: Response) => {
+    const modalityService = Container.get(ModalityService);
+    const modalities = await modalityService.listAll();
+    res.status(200).send(modalities);
+  }
+
   static store = async (req: Request, res: Response) => {
     const modalityService = Container.get(ModalityService);
     const { type }: { type: string } = req.body;

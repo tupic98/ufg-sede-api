@@ -9,7 +9,7 @@ import {
 } from 'typeorm';
 import { Grade } from './Grade';
 import { User } from './User';
-import { IsNotEmpty, IsString, IsNotEmptyObject } from 'class-validator';
+import { IsNotEmpty, IsString, IsNotEmptyObject, IsOptional, IsBoolean } from 'class-validator';
 
 @Entity()
 export class Subject {
@@ -20,6 +20,11 @@ export class Subject {
   @IsNotEmpty()
   @IsString()
   name: string;
+
+  @Column({ name: 'subject_is_external', type: 'boolean', default: false })
+  @IsOptional()
+  @IsBoolean()
+  isExternalTest: boolean;
 
   @OneToMany(
     (type) => User,

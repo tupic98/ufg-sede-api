@@ -15,6 +15,12 @@ export class ModalityService {
     return await this.modalityRepository.findOne(id);
   }
 
+  public async listAll(): Promise<Modality[]> {
+    return await this.modalityRepository
+        .createQueryBuilder('modality')
+        .getMany();
+  }
+
   public async findAll(): Promise<PaginationAwareObject> {
     return await this.modalityRepository
       .createQueryBuilder('modality')
