@@ -15,9 +15,17 @@ export class SedeService {
     return await this.sedeRepository.findOne(id);
   }
 
+  public async findActive(): Promise<Sede | undefined> {
+    return await this.sedeRepository
+      .createQueryBuilder('sede')
+      .where('sede.active = :active', { active: false })
+      .getOne();
+  }
+
   public async findAll(): Promise<PaginationAwareObject> {
     return await this.sedeRepository
       .createQueryBuilder('sede')
+      .orderBy('sede.id', 'ASC')
       .paginate(10);
   }
 

@@ -19,18 +19,28 @@ class SedeController {
 
   static store = async (req: Request, res: Response) => {
     const sedeService = Container.get(SedeService);
-    const { name, logo, code, address }: { name: string, logo: string, code: string, address: string } = req.body;
+    const { name, logo, code, address, active }: { name: string, logo: string, code: string, address: string, active: boolean } = req.body;
 
     const sede = new Sede();
     sede.name = name;
     sede.logo = logo;
     sede.code = code;
     sede.address = address;
+    sede.active = active;
 
     const sedeErrors = await validate(sede);
     if (sedeErrors.length > 0) {
       res.status(400).send(sedeErrors);
       return;
+    }
+
+    if (active) {
+      const currentActive = await sedeService.findActive();
+      if (currentActive && currentActive.active) {
+        currentActive.active = false;
+
+        await sedeService.update(currentActive);
+      }
     }
 
     try {
@@ -45,7 +55,7 @@ class SedeController {
   static update = async (req: Request, res: Response) => {
     const sedeService = Container.get(SedeService);
     const id: number = Number(req.params.id);
-    const { name, logo, code, address }: { name: string, logo: string, code: string, address: string } = req.body;
+    const { name, logo, code, address, active }: { name: string, logo: string, code: string, address: string, active: boolean } = req.body;
 
     const sede = await sedeService.findById(id);
     if (!sede) {
@@ -57,11 +67,21 @@ class SedeController {
     sede.logo = logo;
     sede.code = code;
     sede.address = address;
+    sede.active = active;
 
     const sedeErrors = await validate(sede);
     if (sedeErrors.length > 0) {
       res.status(400).send(sedeErrors);
       return;
+    }
+
+    if (active) {
+      const currentActive = await sedeService.findActive();
+      if (currentActive && currentActive.active) {
+        currentActive.active = false;
+
+        await sedeService.update(currentActive);
+      }
     }
 
     try {
@@ -75,10 +95,21 @@ class SedeController {
   }
 
   static show = async (req: Request, res: Response) => {
+    const id: number = Number(req.params.id);
     const sedeService = Container.get(SedeService);
-    const sede = await sedeService.findById(1);
+    const sede = await sedeService.findById(id);
     if (!sede) {
       res.status(404).json({ message: 'Sede no encontrada '});
+      return;
+    }
+    res.status(200).send(sede);
+  }
+
+  static sedeInformation = async (req: Request, res: Response) => {
+    const sedeService = Container.get(SedeService);
+    const sede = await sedeService.findActive();
+    if (!sede) {
+      res.status(404).json({ message: 'Sede no encontrada' });
       return;
     }
     res.status(200).send(sede);

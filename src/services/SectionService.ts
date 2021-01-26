@@ -27,6 +27,7 @@ export class SectionService {
     return await this.sectionRepository
       .createQueryBuilder('section')
       .leftJoinAndSelect('section.students', 'students')
+      .orderBy('section.name', 'ASC')
       .paginate(10);
   }
 
