@@ -16,5 +16,6 @@ router.get('/student/me', [checkStudentJWT, checkStudentCode], StudentController
 router.post('/student/contact', [checkStudentJWT, checkStudentCode], StudentController.updateContact);
 router.get('/sede-information', SedeController.sedeInformation);
 router.get('/modules', ModuleController.list);
+router.post('/enrollment', StudentController.studentInformation);
 
 export default router;
