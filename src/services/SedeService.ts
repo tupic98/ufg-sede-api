@@ -18,7 +18,7 @@ export class SedeService {
   public async findActive(): Promise<Sede | undefined> {
     return await this.sedeRepository
       .createQueryBuilder('sede')
-      .where('sede.active = :active', { active: false })
+      .where('sede.active = :active', { active: true })
       .getOne();
   }
 
