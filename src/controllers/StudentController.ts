@@ -596,6 +596,85 @@ class StudentController {
     }
   }
 
+  static publishInstitutionalAverage = async (req: Request, res: Response) => {
+    const studentService = Container.get(StudentService);
+
+    const id: number = Number(req.params.id);
+
+    const student = await studentService.findByIdWithNotesRelations(id);
+    if (!student) {
+      res.status(404).json({ message: 'Estudiante no encontrado' });
+      return;
+    }
+    // @ts-ignore
+    const { subjectQualifications, person, ...rest } = student;
+
+    let notes: number[] = [];
+
+    subjectQualifications.map((s) => {
+      s.qualifications.map((q) => {
+        if (+q.module.moduleNumber !== 6984) {
+          notes.push(q.note);
+        }
+      })
+    })
+
+    const length = notes.length;
+
+    const sum = notes.reduce((a: number, b: number) => Number(a) + Number(b));
+
+    const average = sum / length;
+    student.institutionalAverage = average;
+
+    try {
+      await studentService.update(student);
+    } catch (e) {
+      res.status(400).json({ message: 'No se pudieron actualizar las notas', error: e });
+      return;
+    }
+
+    res.status(200).send('Notas publicadas correctamente');
+  }
+
+  static publishFinalAverage = async (req: Request, res: Response) => {
+    const studentService = Container.get(StudentService);
+
+    const id: number = Number(req.params.id);
+
+    const student = await studentService.findByIdWithNotesRelations(id);
+    if (!student) {
+      res.status(404).json({ message: 'Estudiante no encontrado' });
+      return;
+    }
+    // @ts-ignore
+    const { subjectQualifications, person, ...rest } = student;
+
+    let externalAverage: number = 0;
+
+    subjectQualifications.map((s) => {
+      s.qualifications.map((q) => {
+        if (+q.module.moduleNumber === 6984) {
+          externalAverage = +q.note;
+        }
+      })
+    })
+
+    const finalAverage = ((student.institutionalAverage || 0) * student.grade.institutionalPercentage) + ((externalAverage || 0) * student.grade.externalPercentage);
+
+    student.finalAverage = finalAverage;
+
+    student.approved = finalAverage > 6.00;
+
+    try {
+      await studentService.update(student);
+    } catch (e) {
+      res.status(400).json({ message: 'No se pudieron actualizar las notas', error: e });
+      return;
+    }
+
+    res.status(200).send('Notas publicadas correctamente');
+  }
+
   static studentInformation = async (req: Request, res: Response) => {
     const {
       sedeCode,

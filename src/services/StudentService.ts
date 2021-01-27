@@ -1,4 +1,4 @@
-import {DeleteResult, Repository, UpdateResult} from "typeorm";
+import {DeleteResult, Repository} from "typeorm";
 import {Student} from "../entities/Student";
 import { Service } from "typedi";
 import { InjectRepository } from "typeorm-typedi-extensions";
@@ -90,8 +90,8 @@ export class StudentService {
     return await this.studentRepository.save(student);
   }
 
-  public async update(newStudent: Student): Promise<UpdateResult> {
-    return await this.studentRepository.update(newStudent.id, newStudent);
+  public async update(newStudent: Student): Promise<Student> {
+    return await this.studentRepository.save(newStudent);
   }
 
   public async delete(id: number): Promise<DeleteResult> {
